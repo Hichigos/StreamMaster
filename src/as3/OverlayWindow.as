@@ -7,17 +7,18 @@ package
 	
 	import flash.events.Event;
 	import flash.events.FullScreenEvent;
-	import net.wg.infrastructure.base.AbstractWindowView;
+	import net.wg.infrastructure.base.AbstractScreen;
 	import net.wg.gui.components.controls.SoundButton;
 	import net.wg.gui.components.controls.TextInput;
 	import flash.text.*;
 	import scaleform.clik.events.ButtonEvent;
 	
-	public class OverlayWindow extends AbstractWindowView
+	public class OverlayWindow extends AbstractScreen
 	{
 		private var youTubeBtn: SoundButton;
 		private var twitchBtn: SoundButton;
 		private var toggleStreamBtn: SoundButton;
+		private var quitBtn: SoundButton;
 		
 		private var tokenInput: TextInput;
 		
@@ -26,17 +27,14 @@ package
 		public var getClientWindowHeight: Function = null;
 		public var log: Function = null;
 		
-		public function OverlayWindow()
-		{
+		public function OverlayWindow() {
 			super();
 		}
 		
-		override protected function onPopulate():void
-		{
+		override protected function onPopulate(): void {
 			super.onPopulate();
 			width = 400;
 			height = 200;
-			window.title = "Stream Master";
 			
 			youTubeBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
 				width: 100, 
@@ -71,7 +69,16 @@ package
 				enabled: false
 			})) as SoundButton;
 			
-			toggleStreamBtn.addEventListener(ButtonEvent.CLICK, this.onToggleStreamClicked);
+			quitBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
+				width: 25,
+				height: 25,
+				x: 1,
+				y: 1,
+				label: "",
+				enabled: true
+			})) as SoundButton;
+			
+			quitBtn.addEventListener(ButtonEvent.CLICK, this.onCloseBtnClicked);
 			
 			tokenInput = addChild(App.utils.classFactory.getComponent("TextInput", TextInput, {
 				width: 152,
@@ -86,8 +93,7 @@ package
 			this.updateControls();
 		}
 		
-		private function updateControls():void
-		{
+		private function updateControls(): void {
 			this.height = getClientWindowHeight();
 			this.width = getClientWindowWidth();
 			
@@ -111,28 +117,31 @@ package
 			toggleStreamBtn.enabled = isServiceSelected;
 			tokenInput.visible = isServiceSelected;
 			
+			quitBtn.x = this.width - quitBtn.width - 5;
+			
 			log(youTubeBtn.x.toString() + " " + youTubeBtn.y.toString());
 			log(twitchBtn.x.toString() + " " + twitchBtn.y.toString());
 			log(toggleStreamBtn.x.toString() + " " + toggleStreamBtn.y.toString());
 		}
 		
-		private function onYouTubeBtnClicked(param:ButtonEvent):void
-		{
+		private function onYouTubeBtnClicked(param:ButtonEvent): void {
 			youTubeBtn.alpha = 1;
 			twitchBtn.alpha = 0.5;
 			updateControls();			
 		}
 		
-		private function onTwitchBtnClicked(param:ButtonEvent):void
-		{
+		private function onTwitchBtnClicked(param:ButtonEvent): void {
 			twitchBtn.alpha = 1;
 			youTubeBtn.alpha = 0.5;
 			updateControls();
 		}
 		
-		private function onToggleStreamClicked(param:ButtonEvent):void
-		{
+		private function onToggleStreamClicked(param:ButtonEvent): void {
 			this.toggleStream();
+		}
+		
+		private function onCloseBtnClicked(param: ButtonEvent): void {
+			this.dispose();
 		}
 	
 	}
