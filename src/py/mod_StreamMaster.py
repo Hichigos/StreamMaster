@@ -1,5 +1,6 @@
 import re
 import atexit
+import string
 import subprocess
 from os import path
 from socket import socket
@@ -71,12 +72,6 @@ class Protocol(object): # I Want Enums
         return self.__stpd
 
 
-class ConnectionState(object):
-    def __init__(self):
-        self._isRunning = False
-        self._token = ''
-
-
 class IConnection(object):
     __metaclass__ = ABCMeta
 
@@ -92,19 +87,23 @@ class IConnection(object):
 class StreamMasterConnection(IConnection):
 
     def __init__(self, configPath = ''):
-        self.__connectionState = ConnectionState()
         self.__protocol = Protocol()
         self.__address = None
         self.__port = None
         self.__socket = None
+        self.__name = None
 
         if configPath == '':
             self.initializeDefault()
         else:
             self.initializeFromConfig(configPath)
 
-        self.__runExternalServer()
-        self.connect()
+        # self.__runExternalServer()
+        # self.connect()
+
+    @property
+    def name(self):
+        return self.__name
 
     def connect(self):
         try:
@@ -139,7 +138,7 @@ class StreamMasterConnection(IConnection):
         try:
             return self.__send(command, response_length)
         except:
-            return self.__protocol.unawailable
+            return self.__protocol.unavailable
 
     def __send(self, command, response_length):
         self.__socket.send(command)
@@ -155,6 +154,13 @@ class ConnectionManager(object):
     def createConnection(self):
         self.__connections.append(StreamMasterConnection())
 
+    def getConnectionByName(self, name):
+        for connection in self.__connections:
+            if connection.name is name:
+                return connection
+                
+        return None
+        
     def getState(self):
         return self.__connections[0].send('stat', 4)
 
@@ -170,78 +176,150 @@ class ConnectionManager(object):
     def stopStream(self):
         return self.__connections[0].send('stps')
 
+class StreamService(object):
+    def __init__(self):
+        self._name = "None"
+        self._pattern = ''
+        self._token = ''
 
-g_connectionManager = ConnectionManager()
+    @property
+    def pattern(self):
+        return self._pattern
 
+    @property
+    def token(self):
+        return self._token
+
+
+class YouTubeService(StreamService):
+    def __init__(self):
+        StreamService.__init__(self)
+        self._name = "YouTube"
+        self._pattern = re.compile(r'^[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}', re.IGNORECASE)
+
+
+class TwitchService(StreamService):
+    def __init__(self):
+        StreamService.__init__(self)
+        self._name = "Twitch"
+        self._pattern = re.compile(r'^[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}', re.IGNORECASE)
+
+
+class StreamState:
+    Initialized = 1
+    Running = 2
+    Paused = 3
+
+class StreamMasterSingleton(object):
+
+    def __init__(self):
+        self.__connectionManager = ConnectionManager()
+        self.__service = StreamService()
+        self.__state = StreamState.Initialized
+
+    @property
+    def service(self):
+        return self.__service
+
+    @property
+    def connectionManager(self):
+        return self.__connectionManager
+
+    @property
+    def state(self):
+        return self.__state
+
+
+
+g_streamMaster = StreamMasterSingleton()
 
 class OverlayWindow(View):
 
     def __init__(self):
+        super(OverlayWindow, self).__init__()
         View.__init__(self)
-        global g_connectionManager
-        self.__state = g_connectionManager
-        self.WSR = self.__state.WSR
-        self.proto = self.WSR.proto
+        global g_streamMaster
+        self.__streamMaster = g_streamMaster
+        self.__smConnection = self.__streamMaster.connectionManager.getConnectionByName("StreamMasterConnection")
 
     def _populate(self):
-        View._populate(self)
+        super(OverlayWindow, self)._populate()
 
     def _dispose(self):
-        View._dispose(self)
+        super(OverlayWindow, self)._dispose()
+
+    def __del__(self):
+        super(OverlayWindow, self).__del__()
 
     def onWindowClose(self):
         self.destroy()
 
-    def toggleStream(self):
-        SystemMessages.pushMessage("toggled")
+    def onToggleStream(self):
+        self.log("stream toggled")
+
+        if self.__smConnection is None:
+            self.flashObject.setErrorMessage('No connection')
+            pass
+
+        if self.__streamMaster.state is not StreamState.Running:
+            self.__smConnection.send("stst")
+        else:
+            self.__smConnection.send("spst")
+
+    def onServiceChanged(self):
+        if self.flashObject.service is "Twitch":
+            self.__streamMaster.service = TwitchService()
+        else:
+            self.__streamMaster.service = YouTubeService()
 
     @staticmethod
     def getClientWindowWidth():
-        return g_monitorSettings.currentWindowSize.width
+        return g_monitorSettings.currentBorderlessSize.width
 
     @staticmethod
     def getClientWindowHeight():
-        return g_monitorSettings.currentWindowSize.height
+        return g_monitorSettings.currentBorderlessSize.height
 
     @staticmethod
     def log(message):
-        debug_utils.LOG_ERROR(message)
+        debug_utils.LOG_DEBUG(message)
 
     # -- from view
-    def checkInput(self, input):
+    def checkIfTokenValid(self):
 
-        input_valid = False
+        isValid = False
+        token = self.flashObject.token()
 
         if input and len(input) == 19:
-            match = self.__state.pattern.match(input)
+            match = self.__streamMaster.service.pattern.match(token)
             if match:
-                self.__state.token = match.group(0)
-                input_valid = True
+                self.__streamMaster.service.token = match.group(0)
+                isValid = True
 
-        self.__onInputValidate(input_valid)
+        return isValid
 
     # -- from view
-    def startStopStream(self, token):
+    # def startStopStream(self, token):
 
-        state = self.WSR.getState()
+    #     state = self.WSR.getState()
 
-        if state == self.proto.unawailable:
-            self.__onConnect(self.WSR.connect())
+    #     if state == self.proto.unawailable:
+    #         self.__onConnect(self.WSR.connect())
 
-        elif state == self.proto.notInitialized:
-            self.__onInitialize(self.WSR.initialize())
+    #     elif state == self.proto.notInitialized:
+    #         self.__onInitialize(self.WSR.initialize())
 
-        elif state == self.proto.stopped:
-            self.WSR.updateToken(self.__state.token)
-            self.__onStreamStart(self.WSR.startStream())
+    #     elif state == self.proto.stopped:
+    #         self.WSR.updateToken(self.__state.token)
+    #         self.__onStreamStart(self.WSR.startStream())
 
-        elif state == self.proto.busy:
-            self.__onBusy()
+    #     elif state == self.proto.busy:
+    #         self.__onBusy()
 
-        elif state == self.proto.started:
-            self.__onStreamStop(self.WSR.stopStream())
-        else:
-            pass
+    #     elif state == self.proto.started:
+    #         self.__onStreamStop(self.WSR.stopStream())
+    #     else:
+    #         pass
 
 
 _alias = 'OverlayWindow'
