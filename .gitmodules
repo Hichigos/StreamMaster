@@ -1,0 +1,4 @@
+
+[submodule "3rd/obs/includes/obs-studio"]
+	path = 3rd/obs/includes/obs-studio
+	url = https://github.com/obsproject/obs-studio
