@@ -21,4 +21,5 @@
 
 // obs
 
-#include "../../deps/core/includes/libobs/obs.h"
+#include "../3rd/obs/includes/obs-studio/libobs/obs.h"
+#include "../../../3rd/obs/includes/obs-studio/libobs/obs.h"

@@ -24,12 +24,12 @@ public:
 
 	void waitForNewConnection();
 
+	const bool hasConnection() const;
+
 private:
 	addrinfo * ResolveAddressInfo(const std::string &address, const std::string &port);
 	void CreateListenSocket();
 	void BindListeningSocket();
-
-	void configurate();
 
 	void OnError(addrinfo* address_info);
 	void OnError(SOCKET socket);

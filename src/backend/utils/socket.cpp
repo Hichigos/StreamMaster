@@ -69,8 +69,12 @@ void Socket::waitForNewConnection()
 	else {
 		m_socket = accepted_socket;
 		m_hasConnection = true;
-	}
-		
+	}	
+}
+
+const bool Socket::hasConnection() const
+{
+	return m_hasConnection;
 }
 
 // HARDCODE, fake resolve

@@ -4,7 +4,7 @@ project(StreamMaster)
 
 set(SM_3RD "${CMAKE_SOURCE_DIR}/3rd")
 
-set(OBS_INC "${SM_3RD}/obs/includes/libobs")
+set(OBS_INC "${SM_3RD}/obs/includes/obs-studios/libobs")
 set(OBS_LIB "${SM_3RD}/obs/libraries_x86")
 
 set(SM_ROOT "${CMAKE_SOURCE_DIR}/src")
