@@ -4,7 +4,6 @@ import string
 import subprocess
 from os import path
 from socket import socket
-import debug_utils
 from abc import ABCMeta, abstractmethod
 
 from gui.Scaleform.framework import g_entitiesFactories, ViewSettings
@@ -16,7 +15,10 @@ from gui.Scaleform.framework.entities.View import View
 from gui.shared.utils.graphics import g_monitorSettings
 
 from gui import InputHandler
-from gui import SystemMessages
+
+
+def gl_Log(message):
+    print 'MOD_LOG: ' + message
 
 
 class Protocol(object): # I Want Enums
@@ -72,6 +74,11 @@ class Protocol(object): # I Want Enums
         return self.__stpd
 
 
+class ConnectionState:
+    NotConnected = 0
+    Connected = 1
+
+
 class IConnection(object):
     __metaclass__ = ABCMeta
 
@@ -86,24 +93,38 @@ class IConnection(object):
 
 class StreamMasterConnection(IConnection):
 
-    def __init__(self, configPath = ''):
+    def __init__(self, configPath = None):
         self.__protocol = Protocol()
         self.__address = None
         self.__port = None
         self.__socket = None
-        self.__name = None
+        self.__name = "StreamMasterConnection"
+        self.__state = ConnectionState.NotConnected
 
-        if configPath == '':
+        if configPath is None:
             self.initializeDefault()
         else:
             self.initializeFromConfig(configPath)
 
-        # self.__runExternalServer()
-        # self.connect()
+        self.tryToConnect()
+
+    def tryToConnect(self):
+        if self.connect() is self.__protocol.unavailable:
+            if self.__runExternalServer() is self.__protocol.unavailable:
+                gl_Log("Connection failed!")
+                return self.__protocol.unavailable
+
+        self.__state = ConnectionState.Connected
+        return self.__protocol.ok
+
 
     @property
     def name(self):
         return self.__name
+
+    @property
+    def state(self):
+        return self.__state
 
     def connect(self):
         try:
@@ -113,8 +134,10 @@ class StreamMasterConnection(IConnection):
         except:
             return self.__protocol.unavailable
 
+
     def disconnect(self):
-        pass
+        self.__socket.close()
+        self.__state = ConnectionState.Connected
 
     def initializeDefault(self):
         self.__address = '127.0.0.1'
@@ -123,7 +146,7 @@ class StreamMasterConnection(IConnection):
     def initializeFromConfig(self, configPath):
         pass
 
-    def send(self, message, response_length):
+    def send(self, message, response_length=2):
         self.__safeRemoteExec(message, response_length)
 
     def __runExternalServer(self):
@@ -131,8 +154,15 @@ class StreamMasterConnection(IConnection):
         full_name = wsr_path + r'\StreamMaster.exe'
         sinfo = subprocess.STARTUPINFO()
         sinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        wsr = subprocess.Popen(full_name, cwd=wsr_path, startupinfo=sinfo)
-        atexit.register(wsr.kill)
+        try:
+            wsr = subprocess.Popen(full_name, cwd=wsr_path, startupinfo=sinfo)
+            atexit.register(wsr.kill)
+            gl_Log("external server started")
+            return self.__protocol.ok
+        except:
+            gl_Log("external server can't start")
+            return self.__protocol.unavailable
+
 
     def __safeRemoteExec(self, command, response_length=2):
         try:
@@ -153,6 +183,11 @@ class ConnectionManager(object):
 
     def createConnection(self):
         self.__connections.append(StreamMasterConnection())
+        gl_Log("Connections number: " + str(len(self.__connections)))
+
+    @property
+    def count(self):
+        return len(self.__connections)
 
     def getConnectionByName(self, name):
         for connection in self.__connections:
@@ -171,36 +206,50 @@ class ConnectionManager(object):
         return self.__connections[0].send('updt: ' + token)
 
     def startStream(self):
-        return self.__connections[0].send('srts')
+        if self.__connections[0].state is ConnectionState.NotConnected:
+            self.__connections[0].tryToConnect()
+
+        return self.__connections[0].send('stst')
 
     def stopStream(self):
-        return self.__connections[0].send('stps')
+        return self.__connections[0].send('spst')
+
 
 class StreamService(object):
     def __init__(self):
         self._name = "None"
-        self._pattern = ''
+        self._pattern = None
         self._token = ''
 
     @property
     def pattern(self):
         return self._pattern
 
+    def setPattern(self, pattern):
+        self._pattern = pattern
+
     @property
     def token(self):
         return self._token
 
+    def setToken(self, token):
+        self._token = token
+
+    @property
+    def name(self):
+        return self._name
+
 
 class YouTubeService(StreamService):
     def __init__(self):
-        StreamService.__init__(self)
+        super(YouTubeService, self).__init__()
         self._name = "YouTube"
         self._pattern = re.compile(r'^[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}', re.IGNORECASE)
 
 
 class TwitchService(StreamService):
     def __init__(self):
-        StreamService.__init__(self)
+        super(TwitchService, self).__init__()
         self._name = "Twitch"
         self._pattern = re.compile(r'^[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}-[a-z0-9]{4,4}', re.IGNORECASE)
 
@@ -209,6 +258,7 @@ class StreamState:
     Initialized = 1
     Running = 2
     Paused = 3
+
 
 class StreamMasterSingleton(object):
 
@@ -221,6 +271,9 @@ class StreamMasterSingleton(object):
     def service(self):
         return self.__service
 
+    def setService(self, service):
+        self.__service = service
+
     @property
     def connectionManager(self):
         return self.__connectionManager
@@ -229,71 +282,89 @@ class StreamMasterSingleton(object):
     def state(self):
         return self.__state
 
+    def setState(self, state):
+        self.__state = state
 
 
 g_streamMaster = StreamMasterSingleton()
+
 
 class OverlayWindow(View):
 
     def __init__(self):
         super(OverlayWindow, self).__init__()
-        View.__init__(self)
         global g_streamMaster
         self.__streamMaster = g_streamMaster
         self.__smConnection = self.__streamMaster.connectionManager.getConnectionByName("StreamMasterConnection")
 
     def _populate(self):
+        self.log("OW: populate")
         super(OverlayWindow, self)._populate()
 
     def _dispose(self):
+        self.log("OW: dispose")
         super(OverlayWindow, self)._dispose()
 
     def __del__(self):
+        self.log("OW: del")
         super(OverlayWindow, self).__del__()
 
     def onWindowClose(self):
+        self.log("OW: close")
         self.destroy()
 
     def onToggleStream(self):
         self.log("stream toggled")
 
         if self.__smConnection is None:
-            self.flashObject.setErrorMessage('No connection')
+            self.flashObject.setStatusText('No connection')
             pass
 
+        self.__streamMaster.connectionManager.updateToken(self.__streamMaster.service.token)
+
         if self.__streamMaster.state is not StreamState.Running:
-            self.__smConnection.send("stst")
+            self.log("Sent: ")
+            self.__streamMaster.connectionManager.startStream()
+            self.__streamMaster.setState(StreamState.Running)
         else:
-            self.__smConnection.send("spst")
+            self.log("Sent: ")
+            self.__streamMaster.connectionManager.stopStream()
 
     def onServiceChanged(self):
-        if self.flashObject.service is "Twitch":
-            self.__streamMaster.service = TwitchService()
+        if self.flashObject.service() is "Twitch":
+            self.__streamMaster.setService(TwitchService())
         else:
-            self.__streamMaster.service = YouTubeService()
+            self.__streamMaster.setService(YouTubeService())
+
+        name = self.__streamMaster.service.name
+        self.log('Current service is ' + name)
+
+    def getStreamState(self):
+        return self.__streamMaster.state
 
     @staticmethod
     def getClientWindowWidth():
-        return g_monitorSettings.currentBorderlessSize.width
+        return g_monitorSettings.currentWindowSize.width
 
     @staticmethod
     def getClientWindowHeight():
-        return g_monitorSettings.currentBorderlessSize.height
+        return g_monitorSettings.currentWindowSize.height
 
     @staticmethod
     def log(message):
-        debug_utils.LOG_DEBUG(message)
+        gl_Log(message)
 
     # -- from view
     def checkIfTokenValid(self):
 
         isValid = False
         token = self.flashObject.token()
+        self.log("Current token is: " + token)
 
-        if input and len(input) == 19:
-            match = self.__streamMaster.service.pattern.match(token)
-            if match:
-                self.__streamMaster.service.token = match.group(0)
+        if token and len(token) == 19:
+            matched = self.__streamMaster.service.pattern.match(token)
+            if matched:
+                self.__streamMaster.service.setToken(token)
                 isValid = True
 
         return isValid
@@ -336,6 +407,7 @@ def on_handle_key_event(event):
     key = getBigworldNameFromKey(event.key)
 
     if key == 'KEY_F10':
+        OverlayWindow.log("f10 pressed")
         g_appLoader.getApp().loadView(SFViewLoadParams(_alias))
 
 

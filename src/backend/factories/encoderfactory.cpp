@@ -3,12 +3,12 @@
 #include "../adapters/obs/encoders/videoencoder.h"
 #include "../adapters/obs/encoders/audioencoder.h"
 
-IEncoderPtr EncoderFactory::createAudioEncoder()
+EncoderPtr EncoderFactory::createAudioEncoder()
 {
 	return std::make_shared<AudioEncoder>();
 }
 
-IEncoderPtr EncoderFactory::createVideoEncoder()
+EncoderPtr EncoderFactory::createVideoEncoder()
 {
 	return std::make_shared<AudioEncoder>();
 }

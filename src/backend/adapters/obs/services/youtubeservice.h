@@ -8,7 +8,7 @@
 #include "../encoders/encoder.h"
 
 
-class YouTubeService : public Service 
+class YouTubeService : public Service {
 public:
 	YouTubeService();
 

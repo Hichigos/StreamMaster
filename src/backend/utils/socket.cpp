@@ -27,6 +27,7 @@ void Socket::Bind(const std::string &address, const std::string &port) {
 }
 
 void Socket::Listen(int max_connections) {
+	utils::log_string("Listen \n");
 	if (listen(m_socket, max_connections) == SOCKET_ERROR) {
 		OnError(m_socket);
 	}
@@ -68,6 +69,7 @@ void Socket::waitForNewConnection()
 	}
 	else {
 		m_socket = accepted_socket;
+		utils::log_string("Connection received \n");
 		m_hasConnection = true;
 	}	
 }
@@ -99,15 +101,19 @@ addrinfo* Socket::ResolveAddressInfo(const std::string &address, const std::stri
 }
 
 void Socket::CreateListenSocket() {
+	utils::log_string("CreateListenSocket \n");
+
 	m_socket = socket(m_addrinfo->ai_family, m_addrinfo->ai_socktype, m_addrinfo->ai_protocol);
 	if (m_socket == INVALID_SOCKET) {
+		utils::log_string(std::string("Error occured while CreateListenSocket() executed: " + std::to_string(WSAGetLastError())));
 		OnError(m_addrinfo);
 	}
 }
 
 void Socket::BindListeningSocket() {
+	utils::log_string("BindListeningSocket\n");
 	if (bind(m_socket, m_addrinfo->ai_addr, (int)m_addrinfo->ai_addrlen) == SOCKET_ERROR) {
-		log_string(std::string("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError())));
+		utils::log_string("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError()));
 		OnError(m_addrinfo, m_socket);
 	}
 	freeaddrinfo(m_addrinfo);
@@ -120,6 +126,7 @@ void Socket::OnError(addrinfo* address_info) {
 }
 
 void Socket::OnError(SOCKET socket) {
+	utils::log_string("Connection refused with error: " + std::to_string(WSAGetLastError()) + "\n");
 	closesocket(socket);
 	WSACleanup();
 }

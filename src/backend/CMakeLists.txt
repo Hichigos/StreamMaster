@@ -1,5 +1,5 @@
 add_subdirectory(app)
+add_subdirectory(adapters)
 add_subdirectory(clients)
 add_subdirectory(factories)
-add_subdirectory(providers)
 add_subdirectory(utils)

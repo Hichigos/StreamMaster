@@ -1,6 +1,7 @@
 #include "smapp.h"
 #include "../clients/obsclient.h"
 
+
 SMApp::SMApp() :
 	m_streamClientPtr(std::move(std::make_shared<OBSClient>())),
 	m_socket()
@@ -18,27 +19,28 @@ void SMApp::Run() {
 
 			auto request = m_socket.Receive(4);
 
-			//if (request == "stat") {
-			//	connection->Send(WSGetState());
-			//}
-			//else if (request == "srts") {
-			//	connection->Send(WSStartStream());
-			//}
-			//else if (request == "stps") {
-			//	connection->Send(WSStopStream());
-			//}
-			//else if (request == "updt") {
-			//	connection->Receive(2);
-			//	request = connection->Receive(19);
-			//	connection->Send(WSUpdateToken(request));
-			//}
-			//else if (request == "init") {
-			//	connection->Send(WSInitialize());
-			//}
-			//else {
-			//	connection->Send("unauthorized request");
-			//	break;
-			//}
+			utils::log_string("Received message: " + request + "\n");
+
+			if (request == "stat") {
+				m_socket.Send("ok");
+			}
+			else if (request == "stst") {
+				m_streamClientPtr->StartStream();
+				m_socket.Send("ok");
+			}
+			else if (request == "spst") {
+				m_streamClientPtr->StopStream();
+				m_socket.Send("ok");
+			}
+			else if (request == "updt") {
+				m_socket.Receive(2);
+				request = m_socket.Receive(19);
+				m_streamClientPtr->UpdateStreamToken(request);
+				m_socket.Send("ok");
+			}
+			else if (request == "init") {
+				m_socket.Send("ok");
+			}
 		}
 	}
 }

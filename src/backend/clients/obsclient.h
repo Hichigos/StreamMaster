@@ -13,13 +13,16 @@ public:
 	OBSClient();
 	~OBSClient();
 
-	virtual void UpdateStreamResolution(int width, int height) override;
-	virtual void UpdateStreamToken(const std::string &token) override;
+	void UpdateStreamResolution(int width, int height) override;
+	void UpdateStreamToken(const std::string &token) override;
 
-	virtual const OutputState GetStreamState() const override;
+	const OutputState GetStreamState() const override;
 
-	virtual bool StartStream() override;
-	virtual bool StopStream() override;
+	bool StartStream() override;
+	bool StopStream() override;
+
+private:
+	void initialize();
 
 private:
 	EncoderPtr m_videoEncoderPtr;

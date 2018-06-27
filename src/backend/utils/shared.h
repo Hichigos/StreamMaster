@@ -1,6 +1,5 @@
 #pragma once
 
-
 // stl
 
 #include <exception>
@@ -21,5 +20,8 @@
 
 // obs
 
-#include "../3rd/obs/includes/obs-studio/libobs/obs.h"
 #include "../../../3rd/obs/includes/obs-studio/libobs/obs.h"
+
+//user-defined
+
+#include "logger.h"

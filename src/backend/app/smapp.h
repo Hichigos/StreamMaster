@@ -1,3 +1,4 @@
+#pragma once
 #include "../clients/interfaces/istreamclient.h"
 #include "../utils/socket.h"
 

@@ -67,9 +67,18 @@ bool Output::UpdateSettings(const Settings &settings) {
 }
 
 bool Output::Start() {
+	utils::log_string("output start executed");
 	if (state == OutputState::Stopped) {
-		obs_output_start(output);
-		return true;
+		utils::log_string("output state == stopped");
+		bool isStarted = obs_output_start(output);
+
+		if (isStarted) {
+			utils::log_string("output is running");
+		} else {
+			utils::log_string("output run failed: " + 
+				std::string(obs_output_get_last_error(output)));
+		}
+		return isStarted;
 	}
 	return false;
 }
