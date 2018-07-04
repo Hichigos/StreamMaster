@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../utils/shared.h"
-#include "../adapters/obs/encoders/encoder.h"
+#include "../adapters/encoders/encoder.h"
 
 class EncoderFactory {
 public:

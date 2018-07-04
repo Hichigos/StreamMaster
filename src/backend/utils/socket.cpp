@@ -56,6 +56,7 @@ void Socket::Send(const std::string &data) {
 	if (sent == SOCKET_ERROR) {
 		OnError(m_socket);
 	}
+	utils::log_string(data);
 }
 
 void Socket::waitForNewConnection()
@@ -69,8 +70,9 @@ void Socket::waitForNewConnection()
 	}
 	else {
 		m_socket = accepted_socket;
-		utils::log_string("Connection received \n");
+		utils::log_string("Connection received");
 		m_hasConnection = true;
+		std::cout << "Connection established" << std::endl;
 	}	
 }
 

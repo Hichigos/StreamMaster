@@ -1,5 +1,5 @@
 #pragma once
-#include "../../utils/shared.h"
+#include "../utils/shared.h"
 #include "sources/source.h"
 
 class Scene {

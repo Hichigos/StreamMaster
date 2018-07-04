@@ -1,7 +1,7 @@
 #include "encoderfactory.h"
 
-#include "../adapters/obs/encoders/videoencoder.h"
-#include "../adapters/obs/encoders/audioencoder.h"
+#include "../adapters/encoders/videoencoder.h"
+#include "../adapters/encoders/audioencoder.h"
 
 EncoderPtr EncoderFactory::createAudioEncoder()
 {
@@ -10,5 +10,5 @@ EncoderPtr EncoderFactory::createAudioEncoder()
 
 EncoderPtr EncoderFactory::createVideoEncoder()
 {
-	return std::make_shared<AudioEncoder>();
+	return std::make_shared<VideoEncoder>();
 }

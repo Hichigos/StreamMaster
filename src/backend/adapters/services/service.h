@@ -10,6 +10,12 @@
 #include "../utils/settings.h"
 #include "../encoders/encoder.h"
 
+enum ServiceType {
+	None = 0,
+	YouTube,
+	Twitch
+};
+
 class Service {
 public:
 	virtual ~Service();
@@ -19,14 +25,16 @@ public:
 	void UpdateToken(const std::string &token);
 	void UpdateSettings(const Settings &settings);
 
+	const ServiceType serviceType() const;
+
 	const char* GetOutputType();
 
 protected:
 	Service();
 
-	Settings settings;
-	obs_service* service;
-	char* output_type;
+	Settings m_settings;
+	obs_service* m_service;
+	ServiceType m_serviceType;
 };
 
 using ServicePtr = std::shared_ptr<Service>;

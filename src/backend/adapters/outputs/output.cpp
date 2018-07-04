@@ -46,15 +46,15 @@ void Output::SignalDisconnect(const std::string &signal, signal_callback_t callb
 }
 
 void Output::SetVideoEncoder(const EncoderPtr &encoder) {
-	obs_output_set_video_encoder(output, *encoder.get());
+	obs_output_set_video_encoder(output, *encoder);
 }
 
 void Output::SetAudioEncoder(const EncoderPtr &encoder) {
-	obs_output_set_audio_encoder(output, *encoder.get(), 0);
+	obs_output_set_audio_encoder(output, *encoder, 0);
 }
 
 void Output::SetService(const ServicePtr &service) {
-	obs_output_set_service(output, *service.get());
+	obs_output_set_service(output, *service);
 }
 
 bool Output::UpdateSettings(const Settings &settings) {
@@ -67,18 +67,11 @@ bool Output::UpdateSettings(const Settings &settings) {
 }
 
 bool Output::Start() {
-	utils::log_string("output start executed");
-	if (state == OutputState::Stopped) {
-		utils::log_string("output state == stopped");
-		bool isStarted = obs_output_start(output);
+	utils::log_string("start output");
 
-		if (isStarted) {
-			utils::log_string("output is running");
-		} else {
-			utils::log_string("output run failed: " + 
-				std::string(obs_output_get_last_error(output)));
-		}
-		return isStarted;
+	if (state == OutputState::Stopped) {
+		obs_output_start(output);
+		return true;
 	}
 	return false;
 }

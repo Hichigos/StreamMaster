@@ -14,8 +14,8 @@ enum class OutputState {
 
 class Output {
 public:
-	~Output();
 	Output();
+	~Output();
 
 	void SetVideoEncoder(const EncoderPtr &encoder);
 	void SetAudioEncoder(const EncoderPtr &encoder);
@@ -39,7 +39,7 @@ private:
 	void SignalDisconnect(const std::string &signal, signal_callback_t callback);
 
 	Settings settings;
-	obs_output* output;
+	obs_output* output = nullptr;
 
 	std::atomic<OutputState> state = OutputState::Stopped;
 };

@@ -1,14 +1,13 @@
 #include "servicefactory.h"
 
-#include "../adapters/obs/services/youtubeservice.h"
-#include "../adapters/obs/services/twitchservice.h"
+#include "../adapters/services/youtubeservice.h"
+#include "../adapters/services/twitchservice.h"
 
-ServicePtr ServiceFactory::createYouTubeService()
-{
-	return std::make_shared<YouTubeService>();
-}
 
-ServicePtr ServiceFactory::createTwitchService()
+ServicePtr ServiceFactory::createService(const ServiceType type)
 {
-	return std::make_shared<TwitchService>();
+	if (type == ServiceType::YouTube)
+		return std::make_shared<YouTubeService>();
+	else 
+		return std::make_shared<TwitchService>();
 }

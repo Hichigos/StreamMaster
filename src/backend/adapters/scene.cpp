@@ -16,8 +16,8 @@ Scene::Scene(int width, int height) {
 	m_videoSource = std::make_unique<VideoCaptureSource>();
 	m_audioSource = std::make_unique<AudioCaptureSource>();
 
-	obs_set_output_source(0, *m_videoSource.get());
-	obs_set_output_source(1, *m_audioSource.get());
+	obs_set_output_source(0, *m_videoSource);
+	obs_set_output_source(1, *m_audioSource);
 }
 
 Scene::~Scene() { obs_scene_release(scene); }

@@ -2,10 +2,10 @@
 
 #include "interfaces/istreamclient.h"
 
-#include "../adapters/obs/encoders/encoder.h"
-#include "../adapters/obs/scene.h"
-#include "../adapters/obs/outputs/output.h"
-#include "../adapters/obs/services/service.h"
+#include "../adapters/encoders/encoder.h"
+#include "../adapters/scene.h"
+#include "../adapters/outputs/output.h"
+#include "../adapters/services/service.h"
 
 
 class OBSClient : public IStreamClient {
@@ -13,16 +13,15 @@ public:
 	OBSClient();
 	~OBSClient();
 
-	void UpdateStreamResolution(int width, int height) override;
-	void UpdateStreamToken(const std::string &token) override;
+	void updateStreamResolution(int width, int height) override;
+	void updateStreamToken(const std::string &token) override;
+	bool updateService(ServiceType type) override;
 
-	const OutputState GetStreamState() const override;
+	const OutputState streamState() const override;
+	const ServiceType serviceType() const override;
 
-	bool StartStream() override;
-	bool StopStream() override;
-
-private:
-	void initialize();
+	bool startStream() override;
+	bool stopStream() override;
 
 private:
 	EncoderPtr m_videoEncoderPtr;
