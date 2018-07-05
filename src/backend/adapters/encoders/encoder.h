@@ -11,14 +11,14 @@ public:
 	virtual ~Encoder();
 	operator obs_encoder* () const;
 
-	obs_data* GetSettings() const;
-	void UpdateSettings(const Settings &settings);
+	obs_data* settings() const;
+	void updateSettings(const Settings &settings);
 
 protected:
 	Encoder();
 
-	Settings settings;
-	obs_encoder* encoder;
+	Settings m_settings;
+	obs_encoder* m_encoder;
 };
 
 using EncoderPtr = std::shared_ptr<Encoder>;

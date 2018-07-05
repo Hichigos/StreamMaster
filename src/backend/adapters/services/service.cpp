@@ -14,7 +14,7 @@ Service::operator obs_service*() const {
 }
 
 void Service::ApplyEncoders(const EncoderPtr &video_encoder, const EncoderPtr &audio_encoder) {
-	obs_service_apply_encoder_settings(m_service, video_encoder->GetSettings(), audio_encoder->GetSettings());
+	obs_service_apply_encoder_settings(m_service, video_encoder->settings(), audio_encoder->settings());
 }
 
 void Service::UpdateToken(const std::string &token) {

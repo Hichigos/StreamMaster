@@ -17,33 +17,33 @@ public:
 	Output();
 	~Output();
 
-	void SetVideoEncoder(const EncoderPtr &encoder);
-	void SetAudioEncoder(const EncoderPtr &encoder);
-	void SetService(const ServicePtr &service);
+	void setVideoEncoder(const EncoderPtr &encoder);
+	void setAudioEncoder(const EncoderPtr &encoder);
+	void setService(const ServicePtr &service);
 
-	bool UpdateSettings(const Settings &settings);
+	bool updateSettings(const Settings &settings);
 
-	bool Start();
-	bool Stop();
+	bool start();
+	bool stop();
 
-	OutputState GetState();
-	void SetState(OutputState state); // !! warning: public, church for obs callbacks
+	OutputState state();
+	void setState(OutputState state); // !! warning: public, church for obs callbacks
 
 private:
-	void InitializeDefaults();
+	void initializeDefaults();
 
-	void SignalsConnect();
-	void SignalsDisconnect();
+	void signalsConnect();
+	void signalsDisconnect();
 
-	void SignalConnect(const std::string &signal, signal_callback_t callback);
-	void SignalDisconnect(const std::string &signal, signal_callback_t callback);
+	void signalConnect(const std::string &signal, signal_callback_t callback);
+	void signalDisconnect(const std::string &signal, signal_callback_t callback);
 
-	Settings settings;
-	obs_output* output = nullptr;
+	Settings m_settings;
+	obs_output* m_output = nullptr;
 
-	std::atomic<OutputState> state = OutputState::Stopped;
+	std::atomic<OutputState> m_state = OutputState::Stopped;
 };
 
-static void OnOutputStarted(void *data, calldata_t *params);
-static void OnOutputStopped(void *data, calldata_t *params);
-static void OnOutputBusy(void *data, calldata_t *params);
+static void onOutputStarted(void *data, calldata_t *params);
+static void onOutputStopped(void *data, calldata_t *params);
+static void onOutputBusy(void *data, calldata_t *params);

@@ -1,105 +1,108 @@
 #include "output.h"
 
-
 Output::Output() {
-	InitializeDefaults();
-	output = obs_output_create("rtmp_output", "simple_stream", settings, nullptr);
-	obs_output_set_delay(output, 0, OBS_OUTPUT_DELAY_PRESERVE);
-	obs_output_set_reconnect_settings(output, 20, 10);
-	SignalsConnect();
+	initializeDefaults();
+	m_output = obs_output_create("rtmp_output", "simple_stream", m_settings, nullptr);
+	obs_output_set_delay(m_output, 0, OBS_OUTPUT_DELAY_PRESERVE);
+	obs_output_set_reconnect_settings(m_output, 20, 10);
+	signalsConnect();
 }
 
 Output::~Output() {
-	SignalsDisconnect();
-	obs_output_release(output);
+	signalsDisconnect();
+	obs_output_release(m_output);
 }
 
-void Output::InitializeDefaults() {
-	settings
+void Output::initializeDefaults() {
+	m_settings
 		.SetString("bind_ip", "default")
 		.SetBool("new_socket_loop_enabled", false)
 		.SetBool("low_latency_mode_enabled", false);
 }
 
-void Output::SignalsConnect() {
-	SignalConnect("starting", OnOutputBusy);
-	SignalConnect("start", OnOutputStarted);
-	SignalConnect("stopping", OnOutputBusy);
-	SignalConnect("stop", OnOutputStopped);
+void Output::signalsConnect() {
+	signalConnect("starting", onOutputBusy);
+	signalConnect("start", onOutputStarted);
+	signalConnect("stopping", onOutputBusy);
+	signalConnect("stop", onOutputStopped);
 }
 
-void Output::SignalsDisconnect() {
-	SignalDisconnect("starting", OnOutputBusy);
-	SignalDisconnect("start", OnOutputStarted);
-	SignalDisconnect("stopping", OnOutputBusy);
-	SignalDisconnect("stop", OnOutputStopped);
+void Output::signalsDisconnect() {
+	signalDisconnect("starting", onOutputBusy);
+	signalDisconnect("start", onOutputStarted);
+	signalDisconnect("stopping", onOutputBusy);
+	signalDisconnect("stop", onOutputStopped);
 }
 
-void Output::SignalConnect(const std::string &signal, signal_callback_t callback) {
-	auto handler = obs_output_get_signal_handler(output);
+void Output::signalConnect(const std::string &signal, signal_callback_t callback) {
+	auto handler = obs_output_get_signal_handler(m_output);
 	signal_handler_connect(handler, signal.c_str(), callback, this);
 }
 
-void Output::SignalDisconnect(const std::string &signal, signal_callback_t callback) {
-	auto handler = obs_output_get_signal_handler(output);
+void Output::signalDisconnect(const std::string &signal, signal_callback_t callback) {
+	auto handler = obs_output_get_signal_handler(m_output);
 	signal_handler_disconnect(handler, signal.c_str(), callback, this);
 }
 
-void Output::SetVideoEncoder(const EncoderPtr &encoder) {
-	obs_output_set_video_encoder(output, *encoder);
+void Output::setVideoEncoder(const EncoderPtr &encoder) {
+	obs_output_set_video_encoder(m_output, *encoder);
 }
 
-void Output::SetAudioEncoder(const EncoderPtr &encoder) {
-	obs_output_set_audio_encoder(output, *encoder, 0);
+void Output::setAudioEncoder(const EncoderPtr &encoder) {
+	obs_output_set_audio_encoder(m_output, *encoder, 0);
 }
 
-void Output::SetService(const ServicePtr &service) {
-	obs_output_set_service(output, *service);
+void Output::setService(const ServicePtr &service) {
+	obs_output_set_service(m_output, *service);
 }
 
-bool Output::UpdateSettings(const Settings &settings) {
-	if (state == OutputState::Stopped) {
-		this->settings = settings;
-		obs_output_update(output, this->settings);
+bool Output::updateSettings(const Settings &settings) {
+	if (m_state == OutputState::Stopped) {
+		m_settings = settings;
+		obs_output_update(m_output, m_settings);
 		return true;
 	}
 	return false;
 }
 
-bool Output::Start() {
+bool Output::start() {
 	utils::log_string("start output");
 
-	if (state == OutputState::Stopped) {
-		obs_output_start(output);
+	if (m_state == OutputState::Stopped) {
+		obs_output_start(m_output);
 		return true;
 	}
 	return false;
 }
 
-bool Output::Stop() {
-	if (state == OutputState::Started) {
-		obs_output_stop(output);
+bool Output::stop() {
+	if (m_state == OutputState::Started) {
+		obs_output_stop(m_output);
 		return true;
 	}
 	return false;
 }
 
-OutputState Output::GetState() { return state; }
-
-void Output::SetState(OutputState state) { this->state = state; }
-
-
-void OnOutputStarted(void *data, calldata_t *params) {
-	Output *output = static_cast<Output*>(data);
-	output->SetState(OutputState::Started);
+OutputState Output::state() {
+	return m_state;
 }
 
-void OnOutputStopped(void *data, calldata_t *params) {
-	Output *output = static_cast<Output*>(data);
-	output->SetState(OutputState::Stopped);
+void Output::setState(OutputState state) {
+	m_state = state;
 }
 
-void OnOutputBusy(void *data, calldata_t *params) {
+
+void onOutputStarted(void *data, calldata_t *params) {
 	Output *output = static_cast<Output*>(data);
-	output->SetState(OutputState::Busy);
+	output->setState(OutputState::Started);
+}
+
+void onOutputStopped(void *data, calldata_t *params) {
+	Output *output = static_cast<Output*>(data);
+	output->setState(OutputState::Stopped);
+}
+
+void onOutputBusy(void *data, calldata_t *params) {
+	Output *output = static_cast<Output*>(data);
+	output->setState(OutputState::Busy);
 }

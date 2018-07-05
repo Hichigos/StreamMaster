@@ -26,7 +26,7 @@ class StreamMasterSingleton(object):
 
     
     def __runExternalServer(self):
-        wsr_path = path.abspath(path.join(__file__, r'..\..\..\..\..\\res_mods\1.0.2.1\StreamMaster\\'))
+        wsr_path = path.abspath(path.join(__file__, r'..\..\..\..\..\\res_mods\1.0.2.2\StreamMaster\\'))
         full_name = wsr_path + r'\StreamMaster.exe'
         sinfo = subprocess.STARTUPINFO()
         # sinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW

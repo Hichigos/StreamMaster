@@ -19,8 +19,6 @@ OBSClient::OBSClient()
 	auto modules_loader = std::make_unique<ModulesLoader>();
 	modules_loader->LoadAuthorized();
 
-	std::cout << "initializing" << std::endl;
-
 	m_scene = std::make_unique<Scene>();
 
 	m_videoEncoderPtr = EncoderFactory::createVideoEncoder();
@@ -29,17 +27,16 @@ OBSClient::OBSClient()
 	m_service = nullptr;
 
 	m_output = std::make_unique<Output>();
-	m_output->SetVideoEncoder(m_videoEncoderPtr);
-	m_output->SetAudioEncoder(m_audioEncoderPtr);
-	//m_output->SetService(m_service);
+	m_output->setVideoEncoder(m_videoEncoderPtr);
+	m_output->setAudioEncoder(m_audioEncoderPtr);
 
-	utils::log_string("OBS client initialized \n");
+	utils::log_string("obs client initialized");
 }
 
 OBSClient::~OBSClient()
 {
-	while (m_output && m_output->GetState() != OutputState::Stopped) {
-		m_output->Stop();
+	while (m_output && m_output->state() != OutputState::Stopped) {
+		m_output->stop();
 		std::this_thread::sleep_for(200ms);
 	}
 	m_output.release();
@@ -70,12 +67,12 @@ bool OBSClient::updateService(ServiceType type) {
 	m_service = ServiceFactory::createService(type);
 
 	m_service->ApplyEncoders(m_videoEncoderPtr, m_audioEncoderPtr);
-	m_output->SetService(m_service);
+	m_output->setService(m_service);
 	return true;
 }
 
 const OutputState OBSClient::streamState() const {
-	return m_output->GetState();
+	return m_output->state();
 }
 
 const ServiceType OBSClient::serviceType() const
@@ -84,9 +81,9 @@ const ServiceType OBSClient::serviceType() const
 }
 
 bool OBSClient::startStream() {
-	return m_output->Start();
+	return m_output->start();
 }
 
 bool OBSClient::stopStream() {
-	return m_output->Stop();
+	return m_output->stop();
 }

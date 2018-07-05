@@ -10,30 +10,29 @@ Socket::Socket() :
 }
 
 Socket::Socket(SOCKET socket) {
-	this->m_socket = socket;
+	m_socket = socket;
 }
 
 Socket::~Socket() {
 	closesocket(m_socket);
 }
 
-void Socket::Bind(const std::string &address, const std::string &port) {
+void Socket::bindSocket(const std::string &address, const std::string &port) {
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) == 0) {
-		m_addrinfo = ResolveAddressInfo(address, port);
-		CreateListenSocket();
-		BindListeningSocket();
+	if (WSAStartup(MAKEWORD(2, 2), &m_wsaData) == 0) {
+		m_addrinfo = resolveAddressInfo(address, port);
+		createListenSocket();
+		bindListeningSocket();
 	}
 }
 
-void Socket::Listen(int max_connections) {
-	utils::log_string("Listen \n");
+void Socket::listenSocket(int max_connections) {
 	if (listen(m_socket, max_connections) == SOCKET_ERROR) {
-		OnError(m_socket);
+		onError(m_socket);
 	}
 }
 
-std::string Socket::Receive(int buffer_size) {
+std::string Socket::receive(int buffer_size) {
 
 	std::string result = "";
 
@@ -50,11 +49,11 @@ std::string Socket::Receive(int buffer_size) {
 	return result;
 }
 
-void Socket::Send(const std::string &data) {
+void Socket::sendData(const std::string &data) {
 
 	int sent = send(m_socket, data.c_str(), data.length(), 0);
 	if (sent == SOCKET_ERROR) {
-		OnError(m_socket);
+		onError(m_socket);
 	}
 	utils::log_string(data);
 }
@@ -64,15 +63,15 @@ void Socket::waitForNewConnection()
 	std::cout << "Wait for client connect" << std::endl;
 
 	SOCKET accepted_socket = accept(m_socket, NULL, NULL);
+	utils::log_string("Connection received");
 
 	if (accepted_socket == INVALID_SOCKET) {
-		OnError(m_socket);
+		onError(m_socket);
 	}
 	else {
 		m_socket = accepted_socket;
-		utils::log_string("Connection received");
 		m_hasConnection = true;
-		std::cout << "Connection established" << std::endl;
+		utils::log_string("Connection established");
 	}	
 }
 
@@ -81,8 +80,7 @@ const bool Socket::hasConnection() const
 	return m_hasConnection;
 }
 
-// HARDCODE, fake resolve
-addrinfo* Socket::ResolveAddressInfo(const std::string &address, const std::string &port) {
+addrinfo* Socket::resolveAddressInfo(const std::string &address, const std::string &port) {
 
 	addrinfo hints;
 
@@ -102,42 +100,40 @@ addrinfo* Socket::ResolveAddressInfo(const std::string &address, const std::stri
 	return nullptr;
 }
 
-void Socket::CreateListenSocket() {
-	utils::log_string("CreateListenSocket \n");
-
+void Socket::createListenSocket() {
 	m_socket = socket(m_addrinfo->ai_family, m_addrinfo->ai_socktype, m_addrinfo->ai_protocol);
 	if (m_socket == INVALID_SOCKET) {
-		utils::log_string(std::string("Error occured while CreateListenSocket() executed: " + std::to_string(WSAGetLastError())));
-		OnError(m_addrinfo);
+		utils::log_string(std::string("Error occured while createListenSocket() executed: " + std::to_string(WSAGetLastError())));
+		onError(m_addrinfo);
 	}
 }
 
-void Socket::BindListeningSocket() {
+void Socket::bindListeningSocket() {
 	utils::log_string("BindListeningSocket\n");
 	if (bind(m_socket, m_addrinfo->ai_addr, (int)m_addrinfo->ai_addrlen) == SOCKET_ERROR) {
 		utils::log_string("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError()));
-		OnError(m_addrinfo, m_socket);
+		onError(m_addrinfo, m_socket);
 	}
 	freeaddrinfo(m_addrinfo);
 }
 
-void Socket::OnError(addrinfo* address_info) {
+void Socket::onError(addrinfo* address_info) {
 	freeaddrinfo(address_info);
 	address_info = nullptr;
 	WSACleanup();
 }
 
-void Socket::OnError(SOCKET socket) {
-	utils::log_string("Connection refused with error: " + std::to_string(WSAGetLastError()) + "\n");
+void Socket::onError(SOCKET socket) {
+	utils::log_string("Connection refused with error: " + std::to_string(WSAGetLastError()));
 	closesocket(socket);
 	WSACleanup();
 }
 
-void Socket::OnError(addrinfo* address_info, SOCKET socket) {
+void Socket::onError(addrinfo* address_info, SOCKET socket) {
 	freeaddrinfo(address_info);
 	address_info = nullptr;
 	closesocket(socket);
 	WSACleanup();
 }
 
-WSAData Socket::wsa_data;
+WSAData Socket::m_wsaData;

@@ -1,15 +1,15 @@
 #include "smapp.h"
-#include "../clients/obsclient.h"
+#include "../factories/streamclientfactory.h"
 #include "../utils/constants.h"
 
 using namespace std;
 
 SMApp::SMApp() :
-	m_streamClientPtr(std::move(std::make_shared<OBSClient>())),
+	m_streamClientPtr(std::move(StreamClientFactory::createStreamClient())),
 	m_socket()
 {
-	m_socket.Bind(Default::Network::Address, Default::Network::Port);
-	m_socket.Listen(Default::Network::MaxConnections);
+	m_socket.bindSocket(Default::Network::Address, Default::Network::Port);
+	m_socket.listenSocket(Default::Network::MaxConnections);
 }
 
 void SMApp::Run() {
@@ -19,48 +19,58 @@ void SMApp::Run() {
 
 		while (m_socket.hasConnection()) {
 
-			auto request = m_socket.Receive(4);
+			auto request = m_socket.receive(4);
 
-			//if (request.length() > 0)
-				utils::log_string("Received message: " + request + "\n");
+			utils::log_string("Received message: " + request + "\n");
 
 			if (request == Protocol::Request::Ping) {
-				m_socket.Send(Protocol::Replays::Network::OK);
+				m_socket.sendData(Protocol::Replays::Network::OK);
 
 			} else if (request == Protocol::Request::State) {
 
 				switch (m_streamClientPtr->streamState()) {
 					case OutputState::Started:
-						m_socket.Send(Protocol::Replays::State::Started);
+						m_socket.sendData(Protocol::Replays::State::Started);
 						break;
 
 					case OutputState::Stopped:
-						m_socket.Send(Protocol::Replays::State::Stopped);
+						m_socket.sendData(Protocol::Replays::State::Stopped);
 						break;
 
 					case OutputState::Busy:
-						m_socket.Send(Protocol::Replays::State::Busy);
+						m_socket.sendData(Protocol::Replays::State::Busy);
 						break;
 				}
 				
 			} else if (request == Protocol::Request::Start) {
-				m_streamClientPtr->startStream();
-				m_socket.Send(Protocol::Replays::Network::OK);
+
+				if (m_streamClientPtr && m_streamClientPtr->startStream()) {
+					int ticks = 0;
+					while (m_streamClientPtr->streamState() != OutputState::Started && ticks++ < 500)
+						this_thread::sleep_for(10ms);
+
+					m_socket.sendData(m_streamClientPtr->streamState() == OutputState::Started ?
+						Protocol::Replays::Network::OK :
+						Protocol::Replays::Network::Error);
+				}
+				else {
+					m_socket.sendData(Protocol::Replays::Network::BadOperation);
+				}
 
 			} else if (request == Protocol::Request::Stop) {
 				m_streamClientPtr->stopStream();
-				m_socket.Send(Protocol::Replays::Network::OK);
+				m_socket.sendData(Protocol::Replays::Network::OK);
 
 			} else if (request == Protocol::Request::UpdateToken) {
-				auto length = m_socket.Receive(2);
-				auto token = m_socket.Receive(std::stoi(length));
-				m_streamClientPtr->updateStreamToken(token); //"live_235276298_e7CntkmMufzzCR2A12DQmBWEZXZhNI"
+				auto length = m_socket.receive(2);
+				auto token = m_socket.receive(std::stoi(length));
+				m_streamClientPtr->updateStreamToken(token);
 				utils::log_string("Received message: " + token);
-				m_socket.Send(Protocol::Replays::Network::OK);
+				m_socket.sendData(Protocol::Replays::Network::OK);
 
 			} else if (request == Protocol::Request::UpdateService) {
-				auto length = m_socket.Receive(1);
-				auto service = m_socket.Receive(std::stoi(length));
+				auto length = m_socket.receive(1);
+				auto service = m_socket.receive(std::stoi(length));
 				utils::log_string("Received message: " + service);
 
 				if (service == "Twitch")
@@ -68,7 +78,7 @@ void SMApp::Run() {
 				else
 					m_streamClientPtr->updateService(ServiceType::YouTube);
 
-				m_socket.Send(Protocol::Replays::Network::OK);
+				m_socket.sendData(Protocol::Replays::Network::OK);
 			}
 
 			std::this_thread::sleep_for(10ms);

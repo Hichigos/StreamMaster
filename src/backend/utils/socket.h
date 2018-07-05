@@ -1,3 +1,7 @@
+/*
+	Utility adapter over WinSock
+*/
+
 #pragma once
 #include "shared.h"
 
@@ -16,27 +20,27 @@ public:
 	Socket(SOCKET socket);
 	~Socket();
 
-	void Bind(const std::string &address, const std::string &port);
-	void Listen(int max_connections);
+	void bindSocket(const std::string &address, const std::string &port);
+	void listenSocket(int max_connections);
 
-	std::string Receive(int buffer_size);
-	void Send(const std::string &data);
+	std::string receive(int buffer_size);
+	void sendData(const std::string &data);
 
 	void waitForNewConnection();
 
 	const bool hasConnection() const;
 
 private:
-	addrinfo * ResolveAddressInfo(const std::string &address, const std::string &port);
-	void CreateListenSocket();
-	void BindListeningSocket();
+	addrinfo * resolveAddressInfo(const std::string &address, const std::string &port);
+	void createListenSocket();
+	void bindListeningSocket();
 
-	void OnError(addrinfo* address_info);
-	void OnError(SOCKET socket);
-	void OnError(addrinfo* address_info, SOCKET socket);
+	void onError(addrinfo* address_info);
+	void onError(SOCKET socket);
+	void onError(addrinfo* address_info, SOCKET socket);
 
 private:
-	static WSAData wsa_data;
+	static WSAData m_wsaData;
 
 	addrinfo* m_addrinfo;
 	SOCKET m_socket;

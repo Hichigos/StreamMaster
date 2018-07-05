@@ -18,7 +18,7 @@ void VideoCaptureSource::InitializeDefaults() {
 		.SetBool("limit_framerate", false)
 		.SetBool("capture_overlays", false)
 		.SetBool("anti_cheat_hook", true)
-		.SetString("scale_res", "1920x1080");
+		.SetString("scale_res", "1600x900");
 	settings
 		.SetDefaultDouble("volume", 1.0)
 		.SetDefaultInt("mixers", 0xF)

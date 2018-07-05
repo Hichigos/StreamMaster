@@ -11,6 +11,6 @@ public:
 	VideoEncoder();
 
 private:
-	void InitializeDefaults();
+	void initializeDefaults();
 };
 

@@ -7,6 +7,6 @@ TwitchService::TwitchService() {
 
 void TwitchService::InitializeDefaults() {
 	m_settings
-		.SetString("server", "rtmp://live-waw.twitch.tv/app") // + token live_235276298_e7CntkmMufzzCR2A12DQmBWEZXZhNI
+		.SetString("server", "rtmp://live-waw.twitch.tv/app")
 		.SetString("service", "Twitch");
 }

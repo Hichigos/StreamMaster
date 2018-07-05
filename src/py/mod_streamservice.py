@@ -36,4 +36,4 @@ class TwitchService(StreamService):
     def __init__(self):
         super(TwitchService, self).__init__()
         self._name = "Twitch"
-        self._pattern = re.compile(r'live_\d{6}_\w{30}', re.IGNORECASE)
+        self._pattern = re.compile(r'live_\d{9}_\w{30}', re.IGNORECASE)

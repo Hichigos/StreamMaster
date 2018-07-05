@@ -50,9 +50,7 @@ class OverlayWindow(View):
         else:
             self.flashObject.setStatusText('failed to update token')
             MOD_LOG("Failed to update token", LogLevel.ERROR)
-
         self.flashObject.updateControls()
- 
 
     def onServiceChanged(self, service):
 
@@ -79,13 +77,22 @@ class OverlayWindow(View):
     def getStreamService(self):
         return self.__streamMaster.service.name
 
+    def getStreamToken(self):
+        return self.__streamMaster.service.token
+
     @staticmethod
     def getClientWindowWidth():
-        return g_monitorSettings.currentWindowSize.width
+        if g_monitorSettings.isWindowed:
+            return g_monitorSettings.currentWindowSize.width
+        elif g_monitorSettings.isFullscreen:
+            return g_monitorSettings.currentBorderlessSize.width
 
     @staticmethod
     def getClientWindowHeight():
-        return g_monitorSettings.currentWindowSize.height
+        if g_monitorSettings.isWindowed:
+            return g_monitorSettings.currentWindowSize.height
+        elif g_monitorSettings.isFullscreen:
+            return g_monitorSettings.currentBorderlessSize.height
 
     @staticmethod
     def log(message):

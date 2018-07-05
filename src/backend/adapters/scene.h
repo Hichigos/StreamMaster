@@ -1,10 +1,11 @@
 #pragma once
 #include "../utils/shared.h"
 #include "sources/source.h"
+#include "utils\constants.h"
 
 class Scene {
 public:
-	Scene(int width = 1920, int height = 1080);
+	Scene(int width = OBSDefault::Scene::Width, int height = OBSDefault::Scene::Height);
 	~Scene();
 
 	operator obs_scene*() const;

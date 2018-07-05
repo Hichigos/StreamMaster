@@ -12,5 +12,5 @@ public:
 	~AudioEncoder() = default;
 
 private:
-	void InitializeDefaults();
+	void initializeDefaults();
 };
