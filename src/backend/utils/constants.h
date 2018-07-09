@@ -34,6 +34,7 @@ namespace Protocol {
 		const char* const Stop = "spst";
 		const char* const UpdateToken = "updt";
 		const char* const UpdateService = "upds";
+		const char* const UpdateStreamRes = "updr";
 		const char* const Ping = "ping";
 
 	} // end of Protocol::Request

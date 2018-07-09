@@ -7,19 +7,25 @@
 #include "../utils/settings.h"
 #include "../../utils/shared.h"
 
+enum SourceType {
+	Base = 0,
+	Audio,
+	Video
+};
 
 class Source {
 public:
 	virtual ~Source();
 	operator obs_source*() const;
 
-	void UpdateSettings(const Settings &settings);
+	void updateSettings(const Settings &settings);
+	void updateScaleResolution(int width, int height);
 
 protected:
 	Source();
 
-	Settings settings;
-	obs_source* source;
+	Settings m_settings;
+	obs_source* m_source;
 };
 
 using SourcePtr = std::shared_ptr<Source>;

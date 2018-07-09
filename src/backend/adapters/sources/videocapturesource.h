@@ -12,5 +12,5 @@ public:
 	VideoCaptureSource();
 
 protected:
-	void InitializeDefaults();
+	void initializeDefaults();
 };

@@ -10,13 +10,13 @@ public:
 
 	operator obs_scene*() const;
 
-	void UpdateScreenSize(int width, int height);
+	void updateStreamResolution(int width, int height);
 
 private:
-	void ResetAudio(speaker_layout layout, int sps);
-	void ResetVideo(int width, int height, int fps);
+	void resetAudio(speaker_layout layout, int sps);
+	void resetVideo(int width, int height, int fps);
 
-	obs_scene* scene;
+	obs_scene* m_scene;
 
 	SourcePtr m_videoSource;
 	SourcePtr m_audioSource;

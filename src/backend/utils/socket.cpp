@@ -109,7 +109,6 @@ void Socket::createListenSocket() {
 }
 
 void Socket::bindListeningSocket() {
-	utils::log_string("BindListeningSocket\n");
 	if (bind(m_socket, m_addrinfo->ai_addr, (int)m_addrinfo->ai_addrlen) == SOCKET_ERROR) {
 		utils::log_string("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError()));
 		onError(m_addrinfo, m_socket);

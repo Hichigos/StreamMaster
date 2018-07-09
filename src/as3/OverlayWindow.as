@@ -5,33 +5,42 @@ package
 	 * @author Butsianouski Denis
 	 */
 	
+	import flash.display.Bitmap;
 	import flash.events.Event;
 	import flash.events.FullScreenEvent;
+	import mx.core.BitmapAsset;
 	import net.wg.infrastructure.base.AbstractScreen;
 	import net.wg.gui.components.controls.SoundButton;
 	import net.wg.gui.components.controls.TextInput;
 	import flash.text.*;
 	import scaleform.clik.events.ButtonEvent;
-	import net.wg.gui.components.common.containers.VerticalGroupLayout;
 	
 	public class OverlayWindow extends AbstractScreen
 	{
-		private var layout: VerticalGroupLayout;
 		private var youTubeBtn: SoundButton;
 		private var twitchBtn: SoundButton;
 		private var toggleStreamBtn: SoundButton;
 		private var quitBtn: SoundButton;
 		
+		[Embed(source= "res/blackscreen.jpg")]
+		private var BImage: Class;
+		private var background: BitmapAsset;
+
 		private var tokenInput: TextInput;
 		private var statusText: TextField;
+		private var statusLabel: TextField;
+		private var titleLabel: TextField;
 		
 		public var onToggleStream: Function = null;
+		public var onWindowSizeChanged: Function = null;
 		public var onServiceChanged: Function = null;
 		public var onWindowClose: Function = null;
 		public var checkIfTokenValid: Function = null;
 		public var log: Function = null;
 		
 		public var getStreamState: Function = null;
+		public var getStreamService: Function = null;
+		public var getStreamToken: Function = null;
 		public var getClientWindowWidth: Function = null;
 		public var getClientWindowHeight: Function = null;
 		
@@ -42,6 +51,10 @@ package
 		override protected function onPopulate(): void {
 			super.onPopulate();	
 			
+			background = new BImage() as BitmapAsset;
+			background.alpha = 0.4;
+			stage.addChild(background);
+
 			youTubeBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
 				width: 100, 
 				height: 80, 
@@ -98,85 +111,131 @@ package
 			
 			tokenInput.addEventListener(Event.CHANGE, this.onTokenChanged);
 			
-			statusText = new TextField();			
+			statusText = new TextField();
             statusText.multiline = false;
             statusText.selectable = false;
 			statusText.visible = false;
             statusText.defaultTextFormat = new TextFormat("$FieldFont", 14, 0xd80d0d);
-            statusText.text = "";			
+            statusText.text = "";
             addChild(statusText);
-			
-			this.updateControls();
+
+			statusLabel = new TextField();
+            statusLabel.multiline = false;
+            statusLabel.selectable = false;
+			statusLabel.visible = false;
+            statusLabel.defaultTextFormat = new TextFormat("$FieldFont", 14, 0xd80d0d);
+            statusLabel.text = "Status: ";
+            addChild(statusLabel);
+
+			titleLabel = new TextField();
+            titleLabel.multiline = false;
+            titleLabel.selectable = false;
+            titleLabel.defaultTextFormat = new TextFormat("$FieldFont", 18, 0xffffff);
+            titleLabel.text = "Stream Master";
+			titleLabel.width = titleLabel.textWidth + 5;
+            addChild(titleLabel);
+
+			addEventListener(Event.RESIZE, onResizeEvent);
+			addEventListener(Event.FULLSCREEN, onResizeEvent);
+
+			updateControls();
 		}
 		
-		private function updateControls(): void {
+		override protected function draw() : void {
 			this.height = getClientWindowHeight();
 			this.width = getClientWindowWidth();
 			
-			var dx:Number = this.width / 6;
-			var dy:Number = this.height / 4;
+			var dx:Number = this.width / 2;
+			var dy:Number = this.height / 2;
 			
-			youTubeBtn.x = dx;
-			youTubeBtn.y = dy;
+			youTubeBtn.x = dx - youTubeBtn.width - youTubeBtn.width / 2;
+			youTubeBtn.y = dy - youTubeBtn.height;
 			
-			twitchBtn.x = youTubeBtn.x + youTubeBtn.width + dx;
-			twitchBtn.y = dy;
+			twitchBtn.x = dx + twitchBtn.width + twitchBtn.width / 2;
+			twitchBtn.y = dy - twitchBtn.height;
 			
-			toggleStreamBtn.x = youTubeBtn.x + youTubeBtn.width + dx / 2;
+			toggleStreamBtn.x = youTubeBtn.x;
 			toggleStreamBtn.y = youTubeBtn.y + youTubeBtn.height + 5;
 			
 			tokenInput.x = toggleStreamBtn.x + toggleStreamBtn.width + 5;
 			tokenInput.y = toggleStreamBtn.y;
+			tokenInput.width = twitchBtn.x + twitchBtn.width - tokenInput.x;
 			
 			quitBtn.x = this.width - quitBtn.width - 5;
 			
-			statusText.x = toggleStreamBtn.x;
-			statusText.y = toggleStreamBtn.y + toggleStreamBtn.height + 5;
+			statusLabel.x = toggleStreamBtn.x;
+			statusLabel.y = toggleStreamBtn.y + toggleStreamBtn.height + 5;
+
+			statusText.x = statusLabel.x + statusLabel.width + 5;
+			statusText.y = statusLabel.y;
+
+			titleLabel.x = dx - titleLabel.textWidth / 2;
+			titleLabel.y = 1;
+
+			log("draw");
 			
-			log(youTubeBtn.x.toString() + " " + youTubeBtn.y.toString());
-			log(twitchBtn.x.toString() + " " + twitchBtn.y.toString());
-			log(toggleStreamBtn.x.toString() + " " + toggleStreamBtn.y.toString());
+			super.draw();
 		}
 		
-		public function service(): String {
-			return twitchBtn.alpha == 1 ? "Twitch" : "YouTube";
+		override protected function onEscapeKeyDown() : void {
+			stage.removeChild(background);
+			this.onWindowClose();
+			this.dispose();
+		}
+		
+		public function updateControls(): void {
+			
+			var isRunning: Boolean = (this.getStreamState() == "strd");
+
+			twitchBtn.enabled = !isRunning;
+			youTubeBtn.enabled = !isRunning;
+			tokenInput.enabled = !isRunning;
+			toggleStreamBtn.label = isRunning ? "Stop" : "Start";
+			tokenInput.text = isRunning ? "token" : getStreamToken();
+			toggleStreamBtn.enabled = isRunning;
+			
+			log("Is Running: " + isRunning.toString());
+			
+			if (getStreamService() == "YouTube") {
+				youTubeBtn.alpha = 1;
+				twitchBtn.alpha = 0.5;
+			} else if (getStreamService() == "Twitch") {
+				twitchBtn.alpha = 1;
+				youTubeBtn.alpha = 0.5;
+			}
+			
+			//setToken(getStreamToken());
 		}
 		
 		public function token(): String {
 			return tokenInput.text;
 		}
 		
+		public function setToken(text: String): void {
+			tokenInput.text = text;
+			this.toggleStreamBtn.enabled = this.checkIfTokenValid();
+		}
+		
 		public function setStatusText(text: String): void {
 			statusText.visible = text.length > 0;
+			statusLabel.visible = text.length > 0;
 			statusText.text = text;		
 		}
 		
 		private function onYouTubeBtnClicked(param:ButtonEvent): void {
-			youTubeBtn.alpha = 1;
-			twitchBtn.alpha = 0.5;
-			onServiceChanged();
-
-			updateControls();			
+			onServiceChanged("YouTube");
 		}
 		
 		private function onTwitchBtnClicked(param:ButtonEvent): void {
-			twitchBtn.alpha = 1;
-			youTubeBtn.alpha = 0.5;
-			this.onServiceChanged();
-			
-			updateControls();
+			onServiceChanged("Twitch");
 		}
 		
 		private function onToggleStreamClicked(param:ButtonEvent): void {
-			this.onToggleStream();
-			var isRunning: Boolean = (this.getStreamState() == 2);
-			this.log("isRunning " + isRunning.toString());
-			twitchBtn.enabled = isRunning;
-			youTubeBtn.enabled = isRunning;
-			toggleStreamBtn.label = isRunning ? "Stop" : "Start";
+			onToggleStream();
 		}
 		
 		private function onCloseBtnClicked(param: ButtonEvent): void {
+			stage.removeChild(background);
 			this.onWindowClose();
 			this.dispose();
 		}
@@ -184,7 +243,10 @@ package
 		private function onTokenChanged(param: Event): void {
 			this.toggleStreamBtn.enabled = this.checkIfTokenValid();
 		}
-	
+		
+		private function onResizeEvent(param: Event): void {
+			onWindowSizeChanged();
+		}
 	}
 
 }

@@ -48,7 +48,7 @@ OBSClient::~OBSClient()
 }
 
 void OBSClient::updateStreamResolution(int width, int height) {
-	m_scene->UpdateScreenSize(width, height);
+	m_scene->updateStreamResolution(width, height);
 }
 
 void OBSClient::updateStreamToken(const std::string & token) {

@@ -12,5 +12,5 @@ public:
 	AudioCaptureSource();
 
 protected:
-	void InitializeDefaults();
+	void initializeDefaults();
 };

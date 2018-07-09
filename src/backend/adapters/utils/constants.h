@@ -15,8 +15,8 @@ namespace OBSDefault {
 	}
 
 	namespace Scene {
-		const int Width = 1600;
-		const int Height = 900;
+		const int Width = 1366;
+		const int Height = 768;
 	}
 
 }

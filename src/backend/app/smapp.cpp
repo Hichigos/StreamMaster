@@ -65,19 +65,36 @@ void SMApp::Run() {
 				auto length = m_socket.receive(2);
 				auto token = m_socket.receive(std::stoi(length));
 				m_streamClientPtr->updateStreamToken(token);
-				utils::log_string("Received message: " + token);
+				utils::log_string("Received token: " + token);
 				m_socket.sendData(Protocol::Replays::Network::OK);
 
 			} else if (request == Protocol::Request::UpdateService) {
 				auto length = m_socket.receive(1);
 				auto service = m_socket.receive(std::stoi(length));
-				utils::log_string("Received message: " + service);
+				utils::log_string("Received service: " + service);
 
 				if (service == "Twitch")
 					m_streamClientPtr->updateService(ServiceType::Twitch);
 				else
 					m_streamClientPtr->updateService(ServiceType::YouTube);
 
+				m_socket.sendData(Protocol::Replays::Network::OK);
+
+			} else if (request == Protocol::Request::UpdateStreamRes) {
+				auto length = m_socket.receive(1);
+				auto resolution = m_socket.receive(std::stoi(length));
+
+				utils::log_string("Received resolution: " + resolution);
+
+				size_t pos = resolution.find('x');
+
+				auto width = resolution.substr(0, pos);
+				utils::log_string("Width: " + width);
+
+				auto height = resolution.substr(pos + 1, resolution.length() - pos + 1);
+				utils::log_string("Height: " + height);
+
+				m_streamClientPtr->updateStreamResolution(std::stoi(width), std::stoi(height));
 				m_socket.sendData(Protocol::Replays::Network::OK);
 			}
 

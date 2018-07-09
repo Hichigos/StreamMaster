@@ -16,4 +16,5 @@ class Protocol: # I Want Enums
         UpdateToken = "updt"
         State = "stat"
         UpdateService = "upds"
+        UpdateStreamRes = "updr"
         CheckConnection = "ping"

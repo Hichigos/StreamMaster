@@ -6,6 +6,7 @@ from mod_streamservice import YouTubeService, TwitchService
 from mod_streammastersingleton import g_streamMaster
 from mod_logger import MOD_LOG, LogLevel
 
+
 class OverlayWindow(View):
 
     def __init__(self):
@@ -70,6 +71,9 @@ class OverlayWindow(View):
         else:
             self.log('Failed to change service to ' + service)
             return False
+
+    def onWindowSizeChanged(self):
+        self.__smConnection.updateStreamResolution(self.getClientWindowWidth(), self.getClientWindowHeight())
 
     def getStreamState(self):
         return self.__smConnection.state

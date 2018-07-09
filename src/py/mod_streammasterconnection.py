@@ -87,4 +87,9 @@ class StreamMasterConnection(IConnection):
 
     def stopStream(self):
         MOD_LOG("try to stop stream")
-        return self.send(Protocol.Request.StopStream) 
+        return self.send(Protocol.Request.StopStream)
+
+    def updateStreamResolution(self, width, height):
+        MOD_LOG("try to change stream res")
+        resStr = str(width) + "x" + str(height)
+        return self.send(Protocol.Request.UpdateStreamRes + str(len(resStr)) + resStr)

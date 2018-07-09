@@ -2,12 +2,12 @@
 
 
 VideoCaptureSource::VideoCaptureSource() {
-	InitializeDefaults();
-	source = obs_source_create("game_capture", "World of Tanks", settings, nullptr);
+	initializeDefaults();
+	m_source = obs_source_create("game_capture", "World of Tanks", m_settings, nullptr);
 }
 
-void VideoCaptureSource::InitializeDefaults() {
-	settings
+void VideoCaptureSource::initializeDefaults() {
+	m_settings
 		.SetString("capture_mode", "window")
 		.SetString("window", "WoT Client:App:WorldOfTanks.exe")
 		.SetInt("priority", 2)
@@ -19,7 +19,7 @@ void VideoCaptureSource::InitializeDefaults() {
 		.SetBool("capture_overlays", false)
 		.SetBool("anti_cheat_hook", true)
 		.SetString("scale_res", "1600x900");
-	settings
+	m_settings
 		.SetDefaultDouble("volume", 1.0)
 		.SetDefaultInt("mixers", 0xF)
 		.SetDefaultInt("flags", 0)
