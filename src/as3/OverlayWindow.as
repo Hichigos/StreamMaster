@@ -52,12 +52,12 @@ package
 			super.onPopulate();	
 			
 			background = new BImage() as BitmapAsset;
-			background.alpha = 0.4;
-			stage.addChild(background);
+			background.alpha = 0.6;
+			addChild(background);
 
 			youTubeBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
-				width: 100, 
-				height: 80, 
+				width: 120, 
+				height: 100, 
 				x: 172, 
 				y: 50, 
 				label: "YouTube", 
@@ -68,8 +68,8 @@ package
 			youTubeBtn.addEventListener(ButtonEvent.CLICK, this.onYouTubeBtnClicked);
 			
 			twitchBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
-				width: 100,
-				height: 80,
+				width: 120,
+				height: 100,
 				x: 172,
 				y: 50,
 				label: "Twitch",
@@ -80,7 +80,7 @@ package
 			twitchBtn.addEventListener(ButtonEvent.CLICK, this.onTwitchBtnClicked);
 			
 			toggleStreamBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
-				width: 100,
+				width: 120,
 				height: 25,
 				x: 172,
 				y: 50,
@@ -103,7 +103,7 @@ package
 			
 			tokenInput = addChild(App.utils.classFactory.getComponent("TextInput", TextInput, {
 				width: 152,
-				height: 29,
+				height: 25,
 				x: 10,
 				y: 48,
 				enabled: true
@@ -178,7 +178,6 @@ package
 		}
 		
 		override protected function onEscapeKeyDown() : void {
-			stage.removeChild(background);
 			this.onWindowClose();
 			this.dispose();
 		}
@@ -235,7 +234,6 @@ package
 		}
 		
 		private function onCloseBtnClicked(param: ButtonEvent): void {
-			stage.removeChild(background);
 			this.onWindowClose();
 			this.dispose();
 		}
@@ -245,6 +243,7 @@ package
 		}
 		
 		private function onResizeEvent(param: Event): void {
+			log("Fullscreeen event");
 			onWindowSizeChanged();
 		}
 	}
