@@ -5,24 +5,36 @@ package
 	 * @author hichigos
 	 */
 	
-    import flash.display.Loader;
+	import flash.display.Bitmap;
     import flash.display.Sprite;
-    import flash.net.URLRequest;
 	
-	public class ButtonImageState extends Sprite{
+	public class ButtonImageState extends Sprite {
 		
-		private var upAlpha : Number = 1;
-        private var overAlpha : Number = 0.5;
+		[Embed(source= "res/youtube.png")]
+		private var YoutubePic: Class;
 		
-        public function ButtonImageState(_alpha:Number, path: String)
+		[Embed(source= "res/twitch.png")]
+		private var TwitchPic: Class;
+		
+		[Embed(source= "res/facebook.png")]
+		private var FacebookPic: Class;
+		
+        public function ButtonImageState(_alpha:Number, name: String)
         {
-            var my_loader : Loader = new Loader();
-            my_loader.load(new URLRequest("car.jpg"));
-            addChild(my_loader);
+			var pic : Bitmap = null;
+			
+			if (name == "YouTube") {
+				pic = new YoutubePic() as Bitmap;
+			} else if (name == "Twitch") {
+				pic = new TwitchPic() as Bitmap;
+			} else if (name == "Facebook") {
+				pic = new FacebookPic() as Bitmap;
+			}
+			
+			addChild(pic);
 
             this.alpha = _alpha;
-        }
-		
+        }		
 	}
 
 }

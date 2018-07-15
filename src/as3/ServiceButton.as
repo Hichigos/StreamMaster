@@ -2,30 +2,41 @@ package
 {
 	/**
 	 * ...
-	 * @author hichigos
+	 * @author Butsianouski Denis
 	 */
 	
 	import flash.display.DisplayObject;
     import flash.display.SimpleButton;
-    import flash.display.Sprite;
 	
 	import ButtonImageState;
 	 
-	public class ServiceButton 
+	public class ServiceButton extends SimpleButton
 	{
+		private var upAlpha : Number = 0.6;
+        private var overAlpha : Number = 1;
 		
-		public function ServiceButton (upState : DisplayObject = null,
-		overState : DisplayObject = null,
-		downState : DisplayObject = null,
-		hitTestState : DisplayObject = null) {
+		private var m_isChecked : Boolean = false;
+		
+		public function ServiceButton (name : String) {
 			
-			upState = new ButtonImageState( upAlpha);
-            overState = new ButtonImageState( overAlpha);
-            downState = new ButtonImageState( upAlpha);
-            hitTestState = new ButtonImageState( upAlpha);
+			upState = new ButtonImageState( upAlpha, name);
+            overState = new ButtonImageState( overAlpha, name);
+            downState = new ButtonImageState( upAlpha, name);
+            hitTestState = new ButtonImageState( upAlpha, name);
 
             super(upState, overState, downState, hitTestState);
 		}
+		
+		public function get isChecked() : Boolean {
+			return m_isChecked;
+		}
+			
+		public function set isChecked(_isChecked : Boolean) : void {
+			upState.alpha = _isChecked ? overAlpha : upAlpha;
+				
+			m_isChecked = _isChecked;
+		}
+		
 		
 	}
 

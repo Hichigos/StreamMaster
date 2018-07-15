@@ -14,16 +14,21 @@ package
 	import net.wg.gui.components.controls.TextInput;
 	import flash.text.*;
 	import scaleform.clik.events.ButtonEvent;
+	import flash.events.MouseEvent;
+	import ServiceButton;
 	
 	public class OverlayWindow extends AbstractScreen
 	{
-		private var youTubeBtn: SoundButton;
-		private var twitchBtn: SoundButton;
+		private var youTubeBtn: ServiceButton;
+		private var twitchBtn: ServiceButton;
+		private var facebookBtn: ServiceButton;
+		
 		private var toggleStreamBtn: SoundButton;
 		private var quitBtn: SoundButton;
 		
 		[Embed(source= "res/blackscreen.jpg")]
 		private var BImage: Class;
+		
 		private var background: BitmapAsset;
 
 		private var tokenInput: TextInput;
@@ -52,32 +57,32 @@ package
 			super.onPopulate();	
 			
 			background = new BImage() as BitmapAsset;
-			background.alpha = 0.6;
+			background.alpha = 0.8;
 			addChild(background);
 
-			youTubeBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
-				width: 120, 
-				height: 100, 
-				x: 172, 
-				y: 50, 
-				label: "YouTube", 
-				enabled: true, 
-				alpha: 0.5
-			})) as SoundButton;
+			youTubeBtn = new ServiceButton("YouTube");
+			youTubeBtn.width = 128;
+			youTubeBtn.height = 128;
+			youTubeBtn.enabled = true;
+			addChild(youTubeBtn);
 			
-			youTubeBtn.addEventListener(ButtonEvent.CLICK, this.onYouTubeBtnClicked);
+			youTubeBtn.addEventListener(MouseEvent.CLICK, onYouTubeBtnClicked);
 			
-			twitchBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
-				width: 120,
-				height: 100,
-				x: 172,
-				y: 50,
-				label: "Twitch",
-				enabled: true,
-				alpha: 0.5
-			})) as SoundButton;
+			twitchBtn = new ServiceButton("Twitch");
+			twitchBtn.width = 128;
+			twitchBtn.height = 128;
+			twitchBtn.enabled = true;
+			addChild(twitchBtn);
 			
-			twitchBtn.addEventListener(ButtonEvent.CLICK, this.onTwitchBtnClicked);
+			twitchBtn.addEventListener(MouseEvent.CLICK, onTwitchBtnClicked);
+			
+			facebookBtn = new ServiceButton("Facebook");
+			facebookBtn.width = 128;
+			facebookBtn.height = 128;
+			facebookBtn.enabled = true;
+			addChild(facebookBtn);
+			
+			facebookBtn.addEventListener(MouseEvent.CLICK, onFacebookBtnClicked);
 			
 			toggleStreamBtn = addChild(App.utils.classFactory.getComponent("ButtonRed", SoundButton, {
 				width: 120,
@@ -142,24 +147,31 @@ package
 		}
 		
 		override protected function draw() : void {
+			
 			this.height = getClientWindowHeight();
 			this.width = getClientWindowWidth();
 			
 			var dx:Number = this.width / 2;
-			var dy:Number = this.height / 2;
-			
-			youTubeBtn.x = dx - youTubeBtn.width - youTubeBtn.width / 2;
+			var dy:Number = this.height / 2;		
+			var btnWidth:Number = 128;
+			var gap:Number = 5;
+			var btnsRowWidth:Number = (128 + 5) * 3;
+				
+			youTubeBtn.x = dx - btnsRowWidth / 2;
 			youTubeBtn.y = dy - youTubeBtn.height;
 			
-			twitchBtn.x = dx + twitchBtn.width + twitchBtn.width / 2;
+			twitchBtn.x = youTubeBtn.x + youTubeBtn.width + gap;
 			twitchBtn.y = dy - twitchBtn.height;
 			
+			facebookBtn.x = twitchBtn.x + twitchBtn.width + gap;
+			facebookBtn.y = dy - facebookBtn.height;
+			
 			toggleStreamBtn.x = youTubeBtn.x;
-			toggleStreamBtn.y = youTubeBtn.y + youTubeBtn.height + 5;
+			toggleStreamBtn.y = youTubeBtn.y + youTubeBtn.height + 10;
 			
 			tokenInput.x = toggleStreamBtn.x + toggleStreamBtn.width + 5;
 			tokenInput.y = toggleStreamBtn.y;
-			tokenInput.width = twitchBtn.x + twitchBtn.width - tokenInput.x;
+			tokenInput.width = facebookBtn.x + facebookBtn.width - tokenInput.x;
 			
 			quitBtn.x = this.width - quitBtn.width - 5;
 			
@@ -196,14 +208,12 @@ package
 			log("Is Running: " + isRunning.toString());
 			
 			if (getStreamService() == "YouTube") {
-				youTubeBtn.alpha = 1;
-				twitchBtn.alpha = 0.5;
+				youTubeBtn.isChecked = true;
+				twitchBtn.isChecked = false;
 			} else if (getStreamService() == "Twitch") {
-				twitchBtn.alpha = 1;
-				youTubeBtn.alpha = 0.5;
+				youTubeBtn.isChecked = false;
+				twitchBtn.isChecked =true;
 			}
-			
-			//setToken(getStreamToken());
 		}
 		
 		public function token(): String {
@@ -221,12 +231,16 @@ package
 			statusText.text = text;		
 		}
 		
-		private function onYouTubeBtnClicked(param:ButtonEvent): void {
+		private function onYouTubeBtnClicked(param:MouseEvent): void {
 			onServiceChanged("YouTube");
 		}
 		
-		private function onTwitchBtnClicked(param:ButtonEvent): void {
+		private function onTwitchBtnClicked(param:MouseEvent): void {
 			onServiceChanged("Twitch");
+		}
+		
+		private function onFacebookBtnClicked(param:MouseEvent): void {
+			onServiceChanged("Facebook");
 		}
 		
 		private function onToggleStreamClicked(param:ButtonEvent): void {
