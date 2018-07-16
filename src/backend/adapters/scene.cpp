@@ -24,7 +24,6 @@ Scene::~Scene() { obs_scene_release(m_scene); }
 Scene::operator obs_scene* () const { return m_scene; }
 
 void Scene::updateStreamResolution(int width, int height) {
-	//resetVideo(width, height, 60);
 	m_videoSource->updateScaleResolution(width, height);
 }
 

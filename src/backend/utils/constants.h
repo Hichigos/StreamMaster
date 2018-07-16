@@ -3,6 +3,7 @@
 	Protocol - set of requests and responses for incoming connections
 	Default - set of default application settings
 */
+#pragma once
 
 namespace Protocol {
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../utils/shared.h"
 
 
@@ -7,12 +8,12 @@ public:
 	ModulesLoader();
 	~ModulesLoader();
 
-	void LoadAuthorized();
+	void loadAuthorized();
 
 private:
-	std::vector<std::string> authorized_module_names;
+	std::vector<std::string> m_authorizedModuleNames;
 
-	void AddPath(const std::string &bin = nullptr, const std::string &data = nullptr);
-	void LoadModule(const std::string &bin_path, const std::string &data_path);
-	void PostLoad();
+	void addPath(const std::string &bin = nullptr, const std::string &data = nullptr);
+	void loadModule(const std::string &bin_path, const std::string &data_path);
+	void postLoad();
 };

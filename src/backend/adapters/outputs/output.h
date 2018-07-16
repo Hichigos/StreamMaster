@@ -4,6 +4,7 @@
 	Outputs can receive the raw data or receive encoded data.
 */
 #pragma once
+
 #include "../utils/settings.h"
 #include "../services/service.h"
 #include "../encoders/encoder.h"

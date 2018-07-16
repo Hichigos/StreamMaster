@@ -3,7 +3,7 @@
 #include <fstream>
 
 namespace utils {
-	static void log_string(const std::string &str) {
+	static void logAndPost(const std::string &str) {
 		std::ofstream out;
 		std::cout << str << std::endl;
 		out.open("log.txt", std::ofstream::out | std::ofstream::app);

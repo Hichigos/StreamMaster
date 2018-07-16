@@ -55,7 +55,7 @@ void Socket::sendData(const std::string &data) {
 	if (sent == SOCKET_ERROR) {
 		onError(m_socket);
 	}
-	utils::log_string(data);
+	utils::logAndPost(data);
 }
 
 void Socket::waitForNewConnection()
@@ -63,7 +63,7 @@ void Socket::waitForNewConnection()
 	std::cout << "Wait for client connect" << std::endl;
 
 	SOCKET accepted_socket = accept(m_socket, NULL, NULL);
-	utils::log_string("Connection received");
+	utils::logAndPost("Connection received");
 
 	if (accepted_socket == INVALID_SOCKET) {
 		onError(m_socket);
@@ -71,7 +71,7 @@ void Socket::waitForNewConnection()
 	else {
 		m_socket = accepted_socket;
 		m_hasConnection = true;
-		utils::log_string("Connection established");
+		utils::logAndPost("Connection established");
 	}	
 }
 
@@ -103,14 +103,14 @@ addrinfo* Socket::resolveAddressInfo(const std::string &address, const std::stri
 void Socket::createListenSocket() {
 	m_socket = socket(m_addrinfo->ai_family, m_addrinfo->ai_socktype, m_addrinfo->ai_protocol);
 	if (m_socket == INVALID_SOCKET) {
-		utils::log_string(std::string("Error occured while createListenSocket() executed: " + std::to_string(WSAGetLastError())));
+		utils::logAndPost(std::string("Error occured while createListenSocket() executed: " + std::to_string(WSAGetLastError())));
 		onError(m_addrinfo);
 	}
 }
 
 void Socket::bindListeningSocket() {
 	if (bind(m_socket, m_addrinfo->ai_addr, (int)m_addrinfo->ai_addrlen) == SOCKET_ERROR) {
-		utils::log_string("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError()));
+		utils::logAndPost("Error occured while socket bind() called with code: " + std::to_string(WSAGetLastError()));
 		onError(m_addrinfo, m_socket);
 	}
 	freeaddrinfo(m_addrinfo);
@@ -123,7 +123,7 @@ void Socket::onError(addrinfo* address_info) {
 }
 
 void Socket::onError(SOCKET socket) {
-	utils::log_string("Connection refused with error: " + std::to_string(WSAGetLastError()));
+	utils::logAndPost("Connection refused with error: " + std::to_string(WSAGetLastError()));
 	closesocket(socket);
 	WSACleanup();
 }

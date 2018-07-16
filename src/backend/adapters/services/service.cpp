@@ -22,7 +22,7 @@ void Service::updateToken(const std::string &token) {
 		.SetString("key", token.c_str());
 
 	obs_service_update(m_service, m_settings);
-	utils::log_string("New token: " + token);
+	utils::logAndPost("New token: " + token);
 }
 
 void Service::updateSettings(const Settings &settings) {

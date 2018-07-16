@@ -4,6 +4,7 @@
 	showing an image, or playing audio.
 */
 #pragma once
+
 #include "../utils/settings.h"
 #include "../../utils/shared.h"
 

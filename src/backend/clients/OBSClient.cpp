@@ -17,7 +17,7 @@ OBSClient::OBSClient()
 	}
 
 	auto modules_loader = std::make_unique<ModulesLoader>();
-	modules_loader->LoadAuthorized();
+	modules_loader->loadAuthorized();
 
 	m_scene = std::make_unique<Scene>();
 
@@ -29,8 +29,6 @@ OBSClient::OBSClient()
 	m_output = std::make_unique<Output>();
 	m_output->setVideoEncoder(m_videoEncoderPtr);
 	m_output->setAudioEncoder(m_audioEncoderPtr);
-
-	utils::log_string("obs client initialized");
 }
 
 OBSClient::~OBSClient()
@@ -53,7 +51,6 @@ void OBSClient::updateStreamResolution(int width, int height) {
 
 void OBSClient::updateStreamToken(const std::string & token) {
 	m_service->updateToken(token);
-	
 }
 
 bool OBSClient::updateService(ServiceType type) {

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../utils/shared.h"
 #include "../../adapters/outputs/output.h"
 #include "../../adapters/services/service.h"

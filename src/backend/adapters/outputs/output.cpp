@@ -66,7 +66,7 @@ bool Output::updateSettings(const Settings &settings) {
 }
 
 bool Output::start() {
-	utils::log_string("start output");
+	utils::logAndPost("start output");
 
 	if (m_state == OutputState::Stopped) {
 		obs_output_start(m_output);
