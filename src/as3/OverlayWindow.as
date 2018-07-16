@@ -16,6 +16,7 @@ package
 	import scaleform.clik.events.ButtonEvent;
 	import flash.events.MouseEvent;
 	import ServiceButton;
+	import HeaderSprite;
 	
 	public class OverlayWindow extends AbstractScreen
 	{
@@ -34,6 +35,8 @@ package
 		private var statusText: TextField;
 		private var statusLabel: TextField;
 		private var titleLabel: TextField;
+		
+		private var header : HeaderSprite;
 		
 		public var onToggleStream: Function = null;
 		public var onWindowSizeChanged: Function = null;
@@ -56,8 +59,11 @@ package
 			super.onPopulate();	
 			
 			background = new BImage() as BitmapAsset;
-			background.alpha = 0.8;
+			background.alpha = 0.7;
 			addChild(background);
+			
+			header = new HeaderSprite();
+			addChild(header);
 
 			youTubeBtn = new ServiceButton("YouTube");
 			youTubeBtn.width = 128;
@@ -95,8 +101,8 @@ package
 			toggleStreamBtn.addEventListener(ButtonEvent.CLICK, this.onToggleStreamClicked);
 			
 			quitBtn = addChild(App.utils.classFactory.getComponent("CloseButton", SoundButton, {
-				width: 25,
-				height: 25,
+				width: 30,
+				height: 30,
 				x: 1,
 				y: 1,
 				label: "",
@@ -171,6 +177,9 @@ package
 			tokenInput.x = toggleStreamBtn.x + toggleStreamBtn.width + 5;
 			tokenInput.y = toggleStreamBtn.y;
 			tokenInput.width = facebookBtn.x + facebookBtn.width - tokenInput.x;
+			
+			header.width = this.width;
+			header.height = 37;
 			
 			quitBtn.x = this.width - quitBtn.width - 5;
 			
