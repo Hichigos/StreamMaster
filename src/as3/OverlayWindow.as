@@ -28,7 +28,6 @@ package
 		
 		[Embed(source= "res/blackscreen.jpg")]
 		private var BImage: Class;
-		
 		private var background: BitmapAsset;
 
 		private var tokenInput: TextInput;
@@ -200,19 +199,24 @@ package
 
 			twitchBtn.enabled = !isRunning;
 			youTubeBtn.enabled = !isRunning;
+			facebookBtn.enabled = !isRunning;
 			tokenInput.enabled = !isRunning;
 			toggleStreamBtn.label = isRunning ? "Stop" : "Start";
 			tokenInput.text = isRunning ? "token" : getStreamToken();
 			toggleStreamBtn.enabled = isRunning;
 			
-			log("Is Running: " + isRunning.toString());
-			
 			if (getStreamService() == "YouTube") {
 				youTubeBtn.isChecked = true;
 				twitchBtn.isChecked = false;
+				facebookBtn.isChecked = false;
 			} else if (getStreamService() == "Twitch") {
 				youTubeBtn.isChecked = false;
-				twitchBtn.isChecked =true;
+				twitchBtn.isChecked = true;
+				facebookBtn.isChecked = false;
+			} else if (getStreamService() == "Facebook"){
+				youTubeBtn.isChecked = false;
+				twitchBtn.isChecked = false;
+				facebookBtn.isChecked = true;
 			}
 		}
 		
@@ -257,7 +261,6 @@ package
 		}
 		
 		private function onResizeEvent(param: Event): void {
-			log("Fullscreeen event");
 			onWindowSizeChanged();
 		}
 	}
