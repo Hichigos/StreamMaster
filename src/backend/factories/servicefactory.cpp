@@ -2,12 +2,20 @@
 
 #include "../adapters/services/youtubeservice.h"
 #include "../adapters/services/twitchservice.h"
+#include "../adapters/services/facebookservice.h"
 
 
 ServicePtr ServiceFactory::createService(const ServiceType type)
 {
-	if (type == ServiceType::YouTube)
+	switch (type) {
+	case YouTube:
 		return std::make_shared<YouTubeService>();
-	else 
+	case Twitch:
 		return std::make_shared<TwitchService>();
+	case Facebook:
+		return std::make_shared<FacebookService>();
+
+	default:
+		return std::make_shared<YouTubeService>();
+	}
 }

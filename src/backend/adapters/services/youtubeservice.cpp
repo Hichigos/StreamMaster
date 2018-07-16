@@ -2,11 +2,11 @@
 
 
 YouTubeService::YouTubeService() {
-	InitializeDefaults();
+	initializeDefaults();
 	m_service = obs_service_create("rtmp_common", "default_service", m_settings, nullptr);
 }
 
-void YouTubeService::InitializeDefaults() {
+void YouTubeService::initializeDefaults() {
 	m_settings
 		.SetString("server", "rtmp://a.rtmp.youtube.com/live2")
 		.SetString("service", "YouTube / YouTube Gaming");

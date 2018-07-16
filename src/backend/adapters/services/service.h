@@ -13,7 +13,8 @@
 enum ServiceType {
 	None = 0,
 	YouTube,
-	Twitch
+	Twitch,
+	Facebook
 };
 
 class Service {
@@ -21,13 +22,13 @@ public:
 	virtual ~Service();
 	operator obs_service* () const;
 
-	void ApplyEncoders(const EncoderPtr &video_encoder, const EncoderPtr &audio_encoder);
-	void UpdateToken(const std::string &token);
-	void UpdateSettings(const Settings &settings);
+	void applyEncoders(const EncoderPtr &video_encoder, const EncoderPtr &audio_encoder);
+	void updateToken(const std::string &token);
+	void updateSettings(const Settings &settings);
 
 	const ServiceType serviceType() const;
 
-	const char* GetOutputType();
+	const char* getOutputType();
 
 protected:
 	Service();

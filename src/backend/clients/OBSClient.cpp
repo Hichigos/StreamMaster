@@ -52,7 +52,7 @@ void OBSClient::updateStreamResolution(int width, int height) {
 }
 
 void OBSClient::updateStreamToken(const std::string & token) {
-	m_service->UpdateToken(token);
+	m_service->updateToken(token);
 	
 }
 
@@ -66,7 +66,7 @@ bool OBSClient::updateService(ServiceType type) {
 
 	m_service = ServiceFactory::createService(type);
 
-	m_service->ApplyEncoders(m_videoEncoderPtr, m_audioEncoderPtr);
+	m_service->applyEncoders(m_videoEncoderPtr, m_audioEncoderPtr);
 	m_output->setService(m_service);
 	return true;
 }

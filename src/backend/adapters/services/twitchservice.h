@@ -13,5 +13,5 @@ public:
 	TwitchService();
 
 protected:
-	void InitializeDefaults();
+	void initializeDefaults();
 };

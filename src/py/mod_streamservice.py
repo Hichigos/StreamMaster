@@ -37,3 +37,10 @@ class TwitchService(StreamService):
         super(TwitchService, self).__init__()
         self._name = "Twitch"
         self._pattern = re.compile(r'live_\d{9}_\w{30}', re.IGNORECASE)
+
+
+class FacebookService(StreamService):
+    def __init__(self):
+        super(FacebookService, self).__init__()
+        self._name = "Facebook"
+        self._pattern = re.compile(r'\d{15,16}\?s_ps=1&s_vt=api-s&a=\w{16}', re.IGNORECASE)

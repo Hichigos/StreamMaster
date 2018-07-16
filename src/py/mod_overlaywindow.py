@@ -2,7 +2,7 @@ from gui.Scaleform.framework.entities.View import View
 from gui.shared.utils.graphics import g_monitorSettings
 
 from mod_protocol import Protocol
-from mod_streamservice import YouTubeService, TwitchService
+from mod_streamservice import YouTubeService, TwitchService, FacebookService
 from mod_streammastersingleton import g_streamMaster
 from mod_logger import MOD_LOG, LogLevel
 
@@ -62,8 +62,10 @@ class OverlayWindow(View):
         if self.__smConnection.updateService(service) == Protocol.Replays.OK:
             if service == "Twitch":
                 self.__streamMaster.setService(TwitchService())
-            else:
+            elif service == "YouTube":
                 self.__streamMaster.setService(YouTubeService())
+            else:
+                self.__streamMaster.setService(FacebookService())
             
             self.log('Current service is ' + service)
             self.flashObject.updateControls()

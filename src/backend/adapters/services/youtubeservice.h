@@ -13,5 +13,5 @@ public:
 	YouTubeService();
 
 protected:
-	void InitializeDefaults();
+	void initializeDefaults();
 };

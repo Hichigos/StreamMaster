@@ -75,8 +75,10 @@ void SMApp::Run() {
 
 				if (service == "Twitch")
 					m_streamClientPtr->updateService(ServiceType::Twitch);
-				else
+				else if (service == "YouTube")
 					m_streamClientPtr->updateService(ServiceType::YouTube);
+				else
+					m_streamClientPtr->updateService(ServiceType::Facebook);
 
 				m_socket.sendData(Protocol::Replays::Network::OK);
 
