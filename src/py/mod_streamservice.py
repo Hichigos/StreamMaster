@@ -43,4 +43,4 @@ class FacebookService(StreamService):
     def __init__(self):
         super(FacebookService, self).__init__()
         self._name = "Facebook"
-        self._pattern = re.compile(r'\d{15,16}\?s_ps=1&s_vt=api-s&a=\w{16}', re.IGNORECASE)
+        self._pattern = re.compile(r'\d{15,16}\?s_ps=1&s_vt=api-s&a=[\w-]{16}', re.IGNORECASE)
